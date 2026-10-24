@@ -1,0 +1,25 @@
+﻿lamina,seccion,ancho_total_m,componentes,nota
+25 Sistema vial,C1,9.3,canal 4.00 | vía rodada 3.95 | cuneta 0.35 | vereda 1.00,
+25 Sistema vial,C2,24.0,vereda 1.50 | berma 1.50 | vía rodada 6.00 | separador central 6.00 | vía rodada 6.00 | berma 1.50 | vereda 1.50,
+25 Sistema vial,C3,10.5,vereda 1.20 | cuneta 0.40 | vía rodada 7.30 | cuneta 0.40 | vereda 1.20,
+25 Sistema vial,C3',10.5,vereda 1.45 | peatonal 9.05,"Jr. Lima: peatonal con voladizo de 1,45 m"
+25 Sistema vial,B1,14.0,vereda 1.50 | cuneta 0.30 | estacionamiento/jardín 1.60 | vía rodada 7.20 | estacionamiento/jardín 1.60 | cuneta 0.30 | vereda 1.50,
+25 Sistema vial,B2,25.0,vereda 1.20 | jardín 1.90 | cuneta 0.35 | vía rodada 7.20 | cuneta 0.35 | separador central 3.00 | cuneta 0.35 | vía rodada 7.20 | cuneta 0.35 | jardín 1.90 | vereda 1.20,
+25 Sistema vial,C4,8.0,vereda 1.20 | cuneta 0.40 | vía rodada 4.80 | cuneta 0.40 | vereda 1.20,
+25 Sistema vial,C5,12.0,vereda 1.20 | cuneta 0.40 | jardín 1.00 | vía rodada 6.80 | jardín 1.00 | cuneta 0.40 | vereda 1.20,
+25 Sistema vial,B3,12.0,vereda 1.20 | cuneta 0.30 | vía rodada 9.00 | cuneta 0.30 | vereda 1.20,
+25 Sistema vial,C6,14.0,vereda 1.80 | cuneta 0.40 | estacionamiento/jardín 1.20 | vía rodada 7.20 | estacionamiento/jardín 1.20 | cuneta 0.40 | vereda 1.80,
+25 Sistema vial,C7,9.4,vereda 1.20 | cuneta 0.30 | vía rodada 6.40 | cuneta 0.30 | vereda 1.20,
+25 Sistema vial,B4,25.0,vereda 2.20 | cuneta 0.50 | estacionamiento/jardín 1.75 | vía rodada 6.60 | separador central 2.90 | vía rodada 6.60 | estacionamiento/jardín 1.75 | cuneta 0.50 | vereda 2.20,Av. Manuel A. Odría
+25 Sistema vial,C8,17.0,vereda 1.20 | jardín 1.00 | vía rodada 4.80 | canal 3.00 | vía rodada 4.80 | jardín 1.00 | vereda 1.20,"Av. José Gálvez: lado derecho consolidado, lado izquierdo a ampliar; reubicación y canalización del río Huantay"
+25 Sistema vial,E1,32.4,berma 3.70 | vía rodada 12.50 | vía rodada 12.50 | berma 3.70,Vía de Evitamiento (sur y norte)
+26 Vías locales,Local 4.00 m,4.0,vereda 1.25 | jardín 1.50 | vereda 1.25,
+26 Vías locales,Local 5.00 m,5.0,vereda 1.60 | jardín 1.80 | vereda 1.60,
+26 Vías locales,Local 6.00 m,6.0,vereda 1.00 | cuneta 0.40 | vía rodada 3.20 | cuneta 0.40 | vereda 1.00,
+26 Vías locales,Local 7.00 m,7.0,vereda 1.20 | cuneta 0.40 | vía rodada 3.80 | cuneta 0.40 | vereda 1.20,
+26 Vías locales,Local 8.00 m,8.0,vereda 1.20 | cuneta 0.40 | vía rodada 4.80 | cuneta 0.40 | vereda 1.20,
+26 Vías locales,Local 9.00 m,9.0,vereda 1.20 | cuneta 0.40 | vía rodada 5.80 | cuneta 0.40 | vereda 1.20,
+26 Vías locales,Local 10.00 m,10.0,vereda 1.20 | cuneta 0.40 | estacionamiento/jardín 1.50 | vía rodada 3.80 | estacionamiento/jardín 1.50 | cuneta 0.40 | vereda 1.20,
+26 Vías locales,Local 12.00 m,12.0,vereda 1.20 | cuneta 0.40 | jardín 1.00 | vía rodada 6.80 | jardín 1.00 | cuneta 0.40 | vereda 1.20,
+26 Vías locales,Local 14.00 m,14.0,vereda 1.80 | cuneta 0.40 | estacionamiento/jardín 1.20 | vía rodada 7.20 | estacionamiento/jardín 1.20 | cuneta 0.40 | vereda 1.80,
+26 Vías locales,Local 16.00 m,16.0,vereda 2.30 | cuneta 0.40 | estacionamiento/jardín 1.70 | vía rodada 7.20 | estacionamiento/jardín 1.70 | cuneta 0.40 | vereda 2.30,

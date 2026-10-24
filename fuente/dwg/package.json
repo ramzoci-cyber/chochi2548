@@ -1,0 +1,10 @@
+{
+  "name": "convertir-dwg",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Convierte los DWG de AutoCAD (2018, AC1032) a DXF y JSON con LibreDWG (WebAssembly)",
+  "type": "module",
+  "dependencies": {
+    "@mlightcad/libredwg-web": "0.7.17"
+  }
+}

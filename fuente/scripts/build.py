@@ -55,15 +55,16 @@ tpl = reemplazar(tpl, '''  <div class="seg" id="vistas">
   </div>''')
 tpl = reemplazar(tpl, '''    <button class="chip" data-k="giro">Giro</button>''', '''    <button class="chip on" data-k="vehiculos">Vehículos</button>
     <button class="chip on" data-k="cables">Cables</button>
+    <button class="chip" data-k="propuesta" title="Ensanches de la propuesta vial del PDU: en rojo, la franja de los lotes que quedaría dentro de la nueva sección">Propuesta PDU</button>
     <button class="chip" data-k="giro">Giro</button>''')
 tpl = reemplazar(tpl, '''    <canvas id="hidro"></canvas>
   </div>''', '''    <canvas id="hidro"></canvas>
     <div class="fila entre" style="margin-top:8px"><span>Tirante y caudal en T01</span><b id="vT01" style="font-size:12px">—</b></div>
     <canvas id="perfilQ"></canvas>
-    <div class="sub">Lámina en el Jr. Chanchamayo: Q = C·i·A (C = 0,75) y Manning (n = 0,016) en la sección real. Ilustrativo, sin calibrar.</div>
+    <div class="sub">Lámina en el Jr. Chanchamayo: Q = C·i·A (C = 0,75) y Manning (n = 0,016) en la sección actual del plano (línea azul) y en la sección C3 propuesta por el PDU, de 10,50 m (línea naranja). Es ilustrativo y no está calibrado.</div>
   </div>''')
 tpl = reemplazar(tpl, '<div class="fuente">© OpenStreetMap · Microsoft Building Footprints (ODbL) · Copernicus Sentinel-2 y GLO-30 · ESA WorldCover. Alturas estimadas.</div>',
-'<div class="fuente">© OpenStreetMap (vía Overture Maps) · Microsoft Building Footprints (ODbL) · Google Open Buildings 2.5D Temporal (CC BY 4.0) · Overture Places · Copernicus Sentinel-2 y GLO-30 · ESA WorldCover. Jr. Chanchamayo: volumen y alturas del ráster de Google; tipologías, colores y vanos estimados. Clic en una casa para ver su ficha.</div>')
+'<div class="fuente">Planos: PDU de Tarma (MPT), láminas 25 (Sistema vial) y 26 (Vías locales), propuesta JLORE 2025, y Plano Total 2025 (manzanas, curvas cada 5 m y secciones). © OpenStreetMap (vía Overture Maps) · Microsoft Building Footprints (ODbL) · Google Open Buildings 2.5D Temporal (CC BY 4.0) · Overture Places · Copernicus Sentinel-2 y GLO-30 · ESA WorldCover. Clic en una casa, una calle o una manzana para ver su ficha.</div>')
 tpl = reemplazar(tpl, '<div id="etiquetas"></div>', '''<div id="etiquetas"></div>
 <div id="ficha"><button class="btn" id="fCerrar" title="Cerrar" aria-label="Cerrar">✕</button><h3 id="fTitulo"></h3><div id="fCuerpo"></div></div>''')
 
@@ -71,7 +72,7 @@ tpl = reemplazar(tpl, '<div id="etiquetas"></div>', '''<div id="etiquetas"></div
 i0 = tpl.index('// catedral: torres'); i1 = tpl.index('// ---------------------------------------------------------------- vías (cintas sobre el terreno)')
 tpl = tpl[:i0] + tpl[i1:]
 # ---------------- insertar módulos antes de las etiquetas
-mods = ''.join(open(f'{BASE}/src/{m}', encoding='utf-8').read() + '\n' for m in ['ch_util.js', 'ch_calle.js', 'ch_lotes.js', 'ch_hitos.js', 'ch_ui.js'])
+mods = ''.join(open(f'{BASE}/src/{m}', encoding='utf-8').read() + '\n' for m in ['ch_util.js', 'ch_calle.js', 'ch_lotes.js', 'ch_hitos.js', 'ch_plano.js', 'ch_ui.js'])
 tpl = reemplazar(tpl, '// ---------------------------------------------------------------- etiquetas\n', mods + '// ---------------------------------------------------------------- etiquetas\n')
 tpl = reemplazar(tpl, 'const MATS_ENV = [matT, matE, matVia, matAgua].map(m => ({ material: m, base: m.envMapIntensity }));',
                  'const MATS_ENV = [matT, matE, matVia, matAgua, ...MATS_DETALLE].map(m => ({ material: m, base: m.envMapIntensity }));')
@@ -82,18 +83,18 @@ tpl = reemplazar(tpl, '''  chanchamayo: { t: [centroEje[0], 0, centroEje[1]], o:
 tpl = reemplazar(tpl, "document.querySelectorAll('#vistas button').forEach(b => b.onclick = () => irA(b.dataset.v));",
                  "document.querySelectorAll('#vistas button').forEach(b => b.onclick = () => { if (recorrido.activo) salirRecorrido(); irA(b.dataset.v); });")
 tpl = reemplazar(tpl, "const estado = { arboles: true, nombres: true, micro: true, giro: false };",
-                 "const estado = { arboles: true, nombres: true, micro: true, giro: false, vehiculos: true, cables: true };")
+                 "const estado = { arboles: true, nombres: true, micro: true, giro: false, vehiculos: true, cables: true, propuesta: false };")
 tpl = reemplazar(tpl, "stop: '<svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><rect x=\"7\" y=\"7\" width=\"10\" height=\"10\" rx=\"2\"/></svg>' };",
                  "stop: '<svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><rect x=\"7\" y=\"7\" width=\"10\" height=\"10\" rx=\"2\"/></svg>',\n  pausa: '<svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><rect x=\"6.5\" y=\"5.5\" width=\"4\" height=\"13\" rx=\"1\"/><rect x=\"13.5\" y=\"5.5\" width=\"4\" height=\"13\" rx=\"1\"/></svg>' };")
 tpl = reemplazar(tpl, "function aplicarEstado() { grupoArb.visible = estado.arboles; grupoMicro.visible = estado.micro; uMicro.value = estado.micro ? 1 : 0; controles.autoRotate = estado.giro; }",
-                 "function aplicarEstado() { grupoArb.visible = estado.arboles; grupoMicro.visible = estado.micro; uMicro.value = estado.micro ? 1 : 0; controles.autoRotate = estado.giro; grupoVehic.visible = estado.vehiculos; grupoCables.visible = estado.cables; }")
+                 "function aplicarEstado() { grupoArb.visible = estado.arboles; grupoMicro.visible = estado.micro; uMicro.value = estado.micro ? 1 : 0; controles.autoRotate = estado.giro; grupoVehic.visible = estado.vehiculos; grupoCables.visible = estado.cables; grupoProp.visible = estado.propuesta; }")
 tpl = reemplazar(tpl, "function aplicarTema() { raiz.dataset.theme = tema; document.querySelector('[data-k=tema]').classList.toggle('on', tema === 'light'); dibujarHidro(); }",
                  "function aplicarTema() { raiz.dataset.theme = tema; document.querySelector('[data-k=tema]').classList.toggle('on', tema === 'light'); dibujarHidro(); dibujarPerfil(); }")
 tpl = reemplazar(tpl, "  controles.update();\n  const d = camara.position.distanceTo(controles.target);",
                  "  controles.update();\n  actualizarDetalle(dt);\n  const d = camara.position.distanceTo(controles.target);")
 tpl = reemplazar(tpl, "  paso(dt);\n  anillo.scale", "  paso(dt);\n  anillo.scale")
 tpl = reemplazar(tpl, "irA('general', true); actualizarSol(); regenerarEnv(); aplicarTema(); aplicarEstado(); pintar();",
-                 "irA('general', true); actualizarSol(); regenerarEnv(); aplicarTema(); aplicarEstado(); pintar();\n$('bRecorrido').innerHTML = ico.play + 'Recorrido virtual';\nwindow.TARMA = { camara, controles, irA, escena, renderer, recorrido, iniciarRecorrido, CH, lamina, HID, tirante, nivel, secc, latW };")
+                 "irA('general', true); actualizarSol(); regenerarEnv(); aplicarTema(); aplicarEstado(); pintar();\n$('bRecorrido').innerHTML = ico.play + 'Recorrido virtual';\nwindow.TARMA = { camara, controles, irA, escena, renderer, recorrido, iniciarRecorrido, CH, lamina, HID, tirante, tiranteP, nivel, secc, latW, grupoPlano, grupoProp, CALLES, MANZ, abrirFichaCalle, abrirFichaManzana, abrirFichaCorredor, altura, salirRecorrido, estado, aplicarEstado, recalcularAgua, caudal, kT01, PS };")
 tpl = reemplazar(tpl, "function pintar() {\n  $('bLluvia').innerHTML = lloviendo ? ico.stop + 'Detener lluvia' : ico.play + 'Llover';",
                  "function pintar() {\n  $('bLluvia').innerHTML = lloviendo ? ico.stop + 'Detener lluvia' : ico.play + 'Llover';\n  dibujarPerfil();")
 
@@ -114,12 +115,12 @@ tpl = reemplazar(tpl, "const ok = vis && v3.z < 1 && Math.abs(v3.x) < 1.05 && Ma
                  "const ok = vis && v3.z < 1 && Math.abs(v3.x) < 1.05 && Math.abs(v3.y) < 1.05 && dist < (recorrido.activo ? 160 : Math.max(2600, d * 2.2));")
 # ---------------- etiquetas de cuadras (solo de cerca)
 tpl = reemplazar(tpl, "function agregarEtiqueta(texto, x, z, h, acento = false) {\n  const el = document.createElement('div'); el.className = 'marca' + (acento ? ' acento' : ''); el.textContent = texto; capaEt.appendChild(el);\n  etiquetas.push({ el, p: new THREE.Vector3(x, altura(x, z) + h, z), acento });\n}",
-"function agregarEtiqueta(texto, x, z, h, acento = false, cerca = 0) {\n  const el = document.createElement('div'); el.className = 'marca' + (acento ? ' acento' : ''); el.textContent = texto; capaEt.appendChild(el);\n  etiquetas.push({ el, p: new THREE.Vector3(x, altura(x, z) + h, z), acento, cerca });\n}\nfor (const c of CH.cuadras) { const e = enEje((c.s0 + c.s1) / 2); agregarEtiqueta(`Cdra. ${c.n}`, e.x, e.z, 13, false, 650); }")
+"function agregarEtiqueta(texto, x, z, h, acento = false, cerca = 0) {\n  const el = document.createElement('div'); el.className = 'marca' + (acento ? ' acento' : ''); el.textContent = texto; capaEt.appendChild(el);\n  etiquetas.push({ el, p: new THREE.Vector3(x, altura(x, z) + h, z), acento, cerca });\n}\nfor (const c of CH.cuadras) { const e = enEje((c.s0 + c.s1) / 2); agregarEtiqueta(`Cdra. ${c.n}`, e.x, e.z, 13, false, 650); }\netiquetasCalles();")
 tpl = reemplazar(tpl, "&& dist < (recorrido.activo ? 160 : Math.max(2600, d * 2.2));", "&& dist < (recorrido.activo ? 160 : Math.max(2600, d * 2.2)) && (!e.cerca || dist < e.cerca);")
 # ---------------- datos
-D = json.load(open(f'{BASE}/data/datos_mod.json', encoding='utf-8'))
-D['chanchamayo'] = json.load(open(f'{BASE}/data/chanchamayo.json', encoding='utf-8'))
-D['hitos'] = json.load(open(f'{BASE}/data/hitos_final.json', encoding='utf-8'))
+D = json.load(open(f'{BASE}/plan/datos_mod.json', encoding='utf-8'))
+D['chanchamayo'] = json.load(open(f'{BASE}/plan/chanchamayo.json', encoding='utf-8'))
+D['hitos'] = json.load(open(f'{BASE}/plan/hitos_plano.json', encoding='utf-8'))
 datos = '<script>window.DATOS_CIUDAD=' + json.dumps(D, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/') + ';</script>\n'
 tpl = reemplazar(tpl, '<script type="importmap">', datos + '<script type="importmap">')
 salida = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(BASE), 'Tarma_ciudad_3D.html')

@@ -18,6 +18,10 @@ const PS = 2;                                     // paso de estaciones (m)
 const NW = Math.floor(CH.L / PS) + 1, NL = 17;     // estaciones x puntos laterales
 const secc = [];                                   // perfil transversal por estación: lista de [o, y]
 const pendL = new Float32Array(NW), nivel = new Float32Array(NW), tirante = new Float32Array(NW), caudal = new Float32Array(NW);
+// sección propuesta del PDU (lámina 25, sección C3: LP 10,50 m = vereda 1,20 + cuneta 0,40 + vía rodada 7,30 + cuneta 0,40 + vereda 1,20)
+const PROP = CH.plano || { total: 10.5, comp: [['V', 1.2], ['C', 0.4], ['VR', 7.3], ['C', 0.4], ['V', 1.2]] };
+const mitP = PROP.total / 2, sardP = mitP - PROP.comp[0][1];
+const seccP = [], tiranteP = new Float32Array(NW);
 for (let k = 0; k < NW; k++) {
   const s = Math.min(CH.L, k * PS), ce = cCalz(s, 1), co = cCalz(s, -1), fe = fProp(s, 1), fo = fProp(s, -1);
   const sinVE = !enCara[1][Math.round(s / PASO)], sinVO = !enCara['-1'][Math.round(s / PASO)];
@@ -28,6 +32,9 @@ for (let k = 0; k < NW; k++) {
   if (!sinVE) { pts.push([ce + 0.001, yVereda(s, 1, ce)]); pts.push([ce + 0.15, yVereda(s, 1, ce + 0.15)]); }
   pts.push([fe, sinVE ? yCalzada(s, ce) + 0.25 : yVereda(s, 1, fe)]);
   secc.push(pts);
+  { const y0 = interp(CH.y, s), yC = o => y0 - BOMBEO * Math.abs(o), yV = o => y0 - BOMBEO * sardP + SARD + PEND_V * Math.max(0, Math.abs(o) - sardP);
+    seccP.push([[-mitP, yV(mitP)], [-sardP - 0.15, yV(sardP + 0.15)], [-sardP - 0.001, yV(sardP)], [-sardP, yC(sardP)], [0, yC(0)], [sardP, yC(sardP)],
+      [sardP + 0.001, yV(sardP)], [sardP + 0.15, yV(sardP + 0.15)], [mitP, yV(mitP)]]); }
   const a = Math.max(0, s - 12), b = Math.min(CH.L, s + 12);
   pendL[k] = Math.max(0.005, (interp(CH.y, a) - interp(CH.y, b)) / (b - a));
 }
@@ -56,6 +63,7 @@ function recalcularAgua(i) {
   for (let k = 0; k < NW; k++) {
     const s = Math.min(CH.L, k * PS), A = interp(CH.A, s);
     const [h, d, Q] = hidraulica(A, i, secc[k], pendL[k]); nivel[k] = h; tirante[k] = d; caudal[k] = Q;
+    tiranteP[k] = hidraulica(A, i, seccP[k], pendL[k])[1];
   }
 }
 // malla de agua: NW x NL vértices, se actualizan las alturas y la opacidad
@@ -109,7 +117,7 @@ function pasoAgua(dt) {
   HID.iEf += (objetivo - HID.iEf) * (1 - Math.exp(-dt / HID.tau));
   if (Math.abs(HID.iEf - HID.iCalc) > 0.25 || (HID.iEf < 0.3 && HID.iCalc !== 0)) {
     HID.iCalc = HID.iEf < 0.3 ? 0 : HID.iEf; recalcularAgua(HID.iCalc); actualizarLamina(); dibujarPerfil();
-    $('vT01').textContent = `${(tirante[kT01] * 100).toFixed(1)} cm · ${caudal[kT01].toFixed(2)} m³/s`;
+    $('vT01').textContent = `${(tirante[kT01] * 100).toFixed(1)} cm · ${caudal[kT01].toFixed(2)} m³/s · C3 ${(tiranteP[kT01] * 100).toFixed(1)} cm`;
   }
 }
 const lienzoP = $('perfilQ'), ctxP = lienzoP.getContext('2d');
@@ -123,6 +131,9 @@ function dibujarPerfil() {
   for (let k = 0; k < NW; k++) { const x = k / (NW - 1) * w, y = h - 4 - tirante[k] / dmax * (h - 10); k ? ctxP.lineTo(x, y) : ctxP.moveTo(x, y); }
   ctxP.strokeStyle = '#4f8fc0'; ctxP.lineWidth = 1.6; ctxP.stroke(); ctxP.lineTo(w, h); ctxP.lineTo(0, h); ctxP.closePath();
   const gr = ctxP.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(79,143,192,0.45)'); gr.addColorStop(1, 'rgba(79,143,192,0)'); ctxP.fillStyle = gr; ctxP.fill();
+  ctxP.beginPath();                                   // con la sección propuesta C3 (PDU)
+  for (let k = 0; k < NW; k++) { const x = k / (NW - 1) * w, y = h - 4 - tiranteP[k] / dmax * (h - 10); k ? ctxP.lineTo(x, y) : ctxP.moveTo(x, y); }
+  ctxP.strokeStyle = '#e0a03a'; ctxP.lineWidth = 1.3; ctxP.setLineDash([4, 3]); ctxP.stroke(); ctxP.setLineDash([]);
   const xT = CH.sT01 / CH.L * w; ctxP.strokeStyle = acc; ctxP.setLineDash([3, 3]); ctxP.beginPath(); ctxP.moveTo(xT, 0); ctxP.lineTo(xT, h); ctxP.stroke(); ctxP.setLineDash([]);
   ctxP.fillStyle = mut; ctxP.font = '10px Inter, sans-serif'; ctxP.fillText('Plaza', 2, 10); ctxP.fillText('T01', Math.min(w - 22, xT + 3), 10);
   ctxP.textAlign = 'right'; ctxP.fillText(`${(dmax * 100).toFixed(0)} cm`, w - 2, h - 4); ctxP.textAlign = 'left';
@@ -137,12 +148,13 @@ renderer.domElement.addEventListener('pointerup', e => {
   ptr.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   rayo.setFromCamera(ptr, camara);
   const hit = rayo.intersectObject(pickMesh, false)[0];
-  if (!hit) { cerrarFicha(); return; }
+  if (!hit) { if (!pickPlano(rayo)) cerrarFicha(); return; }
   const id = cajasPick.lote[hit.faceIndex * 3];
   const l = CH.lotes.find(q => q.id === id); if (l) abrirFicha(l);
 });
 const TIPOS_TXT = { adobe: 'Tradicional: adobe y teja, balcón de madera', ladrillo: 'Ladrillo caravista con pórticos de concreto', tarrajeo: 'Tarrajeo pintado (concreto y ladrillo)' };
 function abrirFicha(l) {
+  limpiarSelPlano();
   const lado = l.lado > 0 ? 'este / sureste (impares)' : 'oeste / noroeste (pares)';
   $('fTitulo').textContent = l.nombre || (l.num ? `Jr. Chanchamayo ${l.num}` : 'Jr. Chanchamayo s/n');
   $('fCuerpo').innerHTML = `
@@ -151,10 +163,12 @@ function abrirFicha(l) {
     <div class="fila entre"><span>N° aprox.</span><b>${l.num ?? 's/n'}</b></div>
     <div class="fila entre"><span>Pisos · altura</span><b>${l.pisos} · ${l.alto.toFixed(1)} m</b></div>
     <div class="fila entre"><span>Frente · fondo</span><b>${(l.s1 - l.s0).toFixed(1)} m · ${l.Dt.toFixed(0)} m</b></div>
+    <div class="fila entre"><span>Línea de propiedad</span><b>${((l.f[0] + l.f[1]) / 2).toFixed(2)} m del eje</b></div>
+    <div class="fila entre"><span>Ensanche C3 (PDU)</span><b>${Math.max(0, mitP - Math.min(l.f[0], l.f[1])) > 0.05 ? `afecta hasta ${(mitP - Math.min(l.f[0], l.f[1])).toFixed(2)} m de frente` : 'no afecta'}</b></div>
     <div class="fila entre"><span>Uso (asignado)</span><b>${l.uso === 'comercio' ? 'Comercio en 1.er piso' : 'Vivienda'}</b></div>
     <div class="ficha-t">${TIPOS_TXT[l.tipo]}${l.inconcluso ? ' · último piso en obra' : ''}${l.volado ? ' · volado' : ''}</div>
     ${l.nombre ? '<div class="ficha-t">Negocio según Overture Places (ubicación aproximada).</div>' : ''}
-    <div class="ficha-t">Altura y volumen: Google Open Buildings 2.5D (2023). Tipología, colores y vanos: estimados — verificar en campo.</div>`;
+    <div class="ficha-t">Línea de propiedad: contorno de manzana del Plano Total 2025. Altura y volumen: Google Open Buildings 2.5D (2023). Tipología, colores y vanos: estimados — verificar en campo.</div>`;
   $('ficha').classList.add('ver');
   if (selMarco) { grupoDetalle.remove(selMarco); selMarco.geometry.dispose(); }
   const e0 = enEje(l.s0), e1 = enEje(l.s1), sg = l.lado, f0 = l.f[0] + l.ret, f1 = l.f[1] + l.ret, D = Math.max(l.D, l.Dt);
@@ -165,7 +179,7 @@ function abrirFicha(l) {
   selMarco = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: 0xd97757, depthTest: false, transparent: true }));
   selMarco.renderOrder = 5; grupoDetalle.add(selMarco);
 }
-function cerrarFicha() { $('ficha').classList.remove('ver'); if (selMarco) { grupoDetalle.remove(selMarco); selMarco = null; } }
+function cerrarFicha() { $('ficha').classList.remove('ver'); if (selMarco) { grupoDetalle.remove(selMarco); selMarco = null; } limpiarSelPlano(); }
 $('fCerrar').onclick = cerrarFicha;
 
 // ---------------------------------------------------------------- recorrido virtual a nivel de calle (Plaza de Armas -> Av. Manuel Odría)
@@ -215,7 +229,7 @@ controles.addEventListener('start', () => { if (recorrido.activo && !recorrido.p
 
 // ---------------------------------------------------------------- ciclo del detalle
 function actualizarDetalle(dt) {
-  pasoAgua(dt);
+  pasoAgua(dt); actualizarPlano();
   if (recorrido.activo) camRecorrido(dt);
   actualizarSemaforos(uTiempo.value);
   matHalo.opacity = uNoche.value * 0.55;
