@@ -111,6 +111,9 @@ rep('// ---------------------------------------------------------------- etiquet
 rep("function agregarEtiqueta(texto, x, z, h, acento = false) {\n  const el = document.createElement('div'); el.className = 'marca' + (acento ? ' acento' : ''); el.textContent = texto; capaEt.appendChild(el);\n  etiquetas.push({ el, p: new THREE.Vector3(x, altura(x, z) + h, z), acento });\n}",
     "function agregarEtiqueta(texto, x, z, h, acento = false, cerca = 0) {\n  const el = document.createElement('div'); el.className = 'marca' + (acento ? ' acento' : ''); el.textContent = texto; capaEt.appendChild(el);\n  etiquetas.push({ el, p: new THREE.Vector3(x, altura(x, z) + h, z), acento, cerca });\n}\netiquetasCalles();")
 rep("agregarEtiqueta('Punto crítico T01', pcx, pcz, 9, true);", '')
+# controles nativos (selectores, barras de desplazamiento) con el mismo tema que el panel
+rep("--track: rgba(255, 255, 255, .12); --shadow: 0 10px 40px rgba(0, 0, 0, .35);\n  }", "--track: rgba(255, 255, 255, .12); --shadow: 0 10px 40px rgba(0, 0, 0, .35);\n    color-scheme: dark;\n  }")
+rep("--track: rgba(31, 30, 29, .12); --shadow: 0 10px 34px rgba(60, 50, 30, .14);\n  }", "--track: rgba(31, 30, 29, .12); --shadow: 0 10px 34px rgba(60, 50, 30, .14);\n    color-scheme: light;\n  }")
 rep('// ---------------------------------------------------------------- Jr. Chanchamayo y microcuenca', '// ---------------------------------------------------------------- anillo de selección de puntos críticos (sin microcuenca ni eje en esta versión)')
 rep("for (const [t, x, z, h] of C.etiquetas) agregarEtiqueta(t, x, z, h, t.startsWith('Jr.'));", "for (const [t, x, z, h] of C.etiquetas) agregarEtiqueta(t, x, z, h, false, t.startsWith('Catedral') ? 1500 : 0);")
 rep("const vis = estado.nombres && !(e.acento && !estado.micro);", "const vis = e.acento ? estado.criticos : estado.nombres;")
