@@ -11,8 +11,8 @@ Abre `Tarma_ciudad_3D.html` con doble clic en Chrome, Edge o Firefox. Necesita i
 | | |
 |---|---|
 | **Mapas de la tesis** | **Riesgo (C-04).** 887 unidades (573 manzanas y 314 celdas de 1 ha) con su vulnerabilidad y su riesgo en los 9 escenarios. **Peligro (C-03).** Los 9 escenarios. **Puntos críticos.** Los 15 del cuadro C-04. Todo extraído de los PDF y georreferenciado al Plano Total 2025 |
-| **Simulación 2D** | Tormenta de diseño de 25 años (24 h, bloques alternos con la IDF de la tesis) sobre una malla de 10 m (5,2 × 8 km). Usa el esquema inercial local, el terreno de las curvas del plano, las edificaciones como obstáculos (con los patios desaguando a la calle), el cauce y los hidrogramas de 10 cuencas aportantes (SCS-CN e hidrograma unitario del SCS) |
-| **Calibración** | Escenario presente, contra el riesgo por manzana de C-04: κ = 0,49, κ ponderado = 0,62 y 70,5 % de acuerdo. Es el mismo nivel que logra el propio mapa C-03 de la tesis pasado por la matriz de riesgo. Umbrales de peligro por tirante: 0,10, 0,20 y 2,0 m |
+| **Simulación 2D** | Tormenta de diseño de 25 años (24 h, bloques alternos con la IDF de la tesis) sobre una malla de 10 m (5,2 × 8 km). Usa el esquema inercial local y el terreno de las curvas del plano corregido: cauce continuo y depresiones cerradas con salida. Incluye las edificaciones como obstáculos (con los patios desaguando a la calle) y los hidrogramas de 10 cuencas aportantes (SCS-CN e hidrograma unitario del SCS) |
+| **Calibración** | Escenario presente, contra el riesgo por manzana de C-04: κ = 0,48, κ ponderado = 0,61 y 70,3 % de acuerdo. Es el mismo nivel que logra el propio mapa C-03 de la tesis pasado por la matriz de riesgo. Umbrales de peligro por tirante: 0,10, 0,20 y 2,0 m |
 | **Animación de la tormenta** | El agua sube y baja en las calles de 10:00 a 17:00, con el hietograma y el área inundada en el gráfico |
 | **Capas** | Inundación en el tiempo, tirante máximo, peligro de la tesis, riesgo de la tesis, peligro simulado, riesgo simulado y vulnerabilidad |
 | **Fichas** | Por manzana: riesgo de la tesis y simulado en los 9 escenarios. Por punto crítico: tirante y velocidad. Por calle: tirante, velocidad, hora del máximo y ancho del plano |
@@ -30,23 +30,23 @@ Abre `Tarma_ciudad_3D.html` con doble clic en Chrome, Edge o Firefox. Necesita i
 
 | Escenario | P24 en la Plaza | Unidades en riesgo alto: tesis · simulación | Área urbana con > 10 cm | Puntos críticos en peligro alto: tesis · simulación |
 |---|---|---|---|---|
-| Presente (1981–2020) | 37,2 mm | 63 · **59** | 1,37 km² | 9 · **6** |
-| CMIP5 RCP 4.5 · 2031–2060 | 42,4 mm (+14 %) | 63 · **65** | 1,52 km² | 9 · **6** |
-| CMIP5 RCP 4.5 · 2071–2100 | 42,6 mm (+14 %) | 63 · **68** | 1,55 km² | 9 · **6** |
-| CMIP5 RCP 8.5 · 2031–2060 | 45,7 mm (+23 %) | 76 · **68** | 1,61 km² | 11 · **6** |
-| CMIP5 RCP 8.5 · 2071–2100 | 63,6 mm (+71 %) | 203 · **92** | 2,00 km² | 15 · **8** |
-| CMIP6 SSP2-4.5 · 2031–2060 | 41,4 mm (+11 %) | 63 · **61** | 1,48 km² | 9 · **6** |
-| CMIP6 SSP2-4.5 · 2071–2100 | 50,2 mm (+35 %) | 77 · **72** | 1,70 km² | 11 · **6** |
-| CMIP6 SSP5-8.5 · 2031–2060 | 41,5 mm (+12 %) | 63 · **63** | 1,49 km² | 9 · **6** |
-| CMIP6 SSP5-8.5 · 2071–2100 | 50,7 mm (+36 %) | 78 · **75** | 1,73 km² | 11 · **6** |
+| Presente (1981–2020) | 37,2 mm | 63 · **55** | 1,24 km² | 9 · **6** |
+| CMIP5 RCP 4.5 · 2031–2060 | 42,4 mm (+14 %) | 63 · **59** | 1,43 km² | 9 · **6** |
+| CMIP5 RCP 4.5 · 2071–2100 | 42,6 mm (+14 %) | 63 · **61** | 1,47 km² | 9 · **6** |
+| CMIP5 RCP 8.5 · 2031–2060 | 45,7 mm (+23 %) | 76 · **65** | 1,54 km² | 11 · **6** |
+| CMIP5 RCP 8.5 · 2071–2100 | 63,6 mm (+71 %) | 203 · **88** | 1,96 km² | 15 · **8** |
+| CMIP6 SSP2-4.5 · 2031–2060 | 41,4 mm (+11 %) | 63 · **58** | 1,38 km² | 9 · **6** |
+| CMIP6 SSP2-4.5 · 2071–2100 | 50,2 mm (+35 %) | 77 · **69** | 1,64 km² | 11 · **6** |
+| CMIP6 SSP5-8.5 · 2031–2060 | 41,5 mm (+12 %) | 63 · **58** | 1,40 km² | 9 · **6** |
+| CMIP6 SSP5-8.5 · 2071–2100 | 50,7 mm (+36 %) | 78 · **72** | 1,67 km² | 11 · **6** |
 
 «Unidades en riesgo alto» incluye las de riesgo alto y muy alto. Un punto crítico cuenta en la simulación si tiene al menos 0,20 m de agua a 30 m o menos.
 
-- **Concordancia.** En 7 de los 9 escenarios, la simulación da casi el mismo número de unidades en riesgo alto que la tesis, con 5 unidades de diferencia o menos. Calibrada solo con el presente, reproduce también el aumento de los escenarios CMIP6 de 2071–2100: +13 frente a +14 en SSP2-4.5 y +16 frente a +15 en SSP5-8.5.
-- **Excepción: CMIP5 RCP 8.5 2071–2100.** La tesis salta a 203 unidades y a 97 % de la ciudad en peligro alto. La simulación sube a 92 unidades y a 2,00 km² inundados (+46 %). El salto de la tesis es el de un factor de lluvia clasificado, que eleva de clase a toda la ciudad. La simulación concentra el aumento en el cauce, sus riberas y las calles bajas.
-- **Profundidad.** El agua profunda (más de 50 cm) crece más del doble de rápido que la extensión inundada: +19 % a +105 % frente a +8 % a +46 %.
+- **Aumento.** La simulación se calibró solo con el presente, y aun así reproduce el aumento de unidades en riesgo alto de los escenarios con más lluvia: +14 frente a +14 en SSP2-4.5 2071–2100 y +17 frente a +15 en SSP5-8.5 2071–2100. El número absoluto queda entre 2 y 11 unidades por debajo de la tesis.
+- **Excepción: CMIP5 RCP 8.5 2071–2100.** La tesis salta a 203 unidades y a 97 % de la ciudad en peligro alto. La simulación sube a 88 unidades y a 1,96 km² inundados (+58 %). El salto de la tesis es el de un factor de lluvia clasificado, que eleva de clase a toda la ciudad. La simulación concentra el aumento en el cauce, sus riberas y las calles bajas.
+- **Profundidad.** El área inundada crece casi en proporción a la lluvia (+11 % a +58 %), y el agua profunda (más de 50 cm) unas dos veces más rápido (+26 % a +143 %).
 - **Puntos críticos.** PC-2 a PC-6, PC-14 y PC-15 no llegan a peligro alto en ningún escenario: tienen menos de 0,20 m. Es probable que dependan del drenaje o de obras que no están en el plano; son los primeros que conviene verificar en campo.
-- **Patios.** Los patios encerrados por las edificaciones desaguan a la calle. Los bolsones aislados con más de 30 cm dentro de las manzanas bajaron de 149 a 16 en el presente.
+- **Terreno corregido.** El cauce es continuo y el terreno no tiene depresiones cerradas, y los patios desaguan a la calle. El agua atrapada en pozos sin salida bajó de 273 000 a 22 000 m³ en el presente; lo que queda está en tramos de calle encerrados por edificaciones.
 
 El método, la calibración, la discusión y las limitaciones están en `docs/metodologia_inundaciones.md`.
 

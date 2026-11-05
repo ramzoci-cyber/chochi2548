@@ -15,7 +15,7 @@ Para los pasos 1 y 2 también hace falta `pdfimages` (poppler-utils).
 ## Regenerar el HTML con simulaciones nuevas (unos 30 minutos)
 
 ```bash
-python scripts3/sim2d.py presente final 0 1.0 0.10 6 18 3.0 1   # escenario presente, parámetros calibrados, patios sin bolsones
+python scripts3/sim2d.py presente final 0 1.0 0.10 6 18 3.0 1 1   # presente: parámetros calibrados, patios y terreno corregidos
 bash scripts3/lote_final.sh                                     # los 8 escenarios futuros
 python scripts3/exportar_inund.py final                          # empaqueta resultados y mapas de la tesis -> inund/datos_mod.json
 python scripts3/build_inund.py                                   # escribe ../../Tarma_ciudad_3D.html
@@ -32,9 +32,14 @@ Los argumentos de `sim2d.py` son, en orden:
 4. rugosidad de bloque;
 5. hora de inicio y de fin;
 6. altura de las edificaciones (m);
-7. corrección de patios (1 = sí).
+7. corrección de patios (1 = sí);
+8. corrección del terreno: cauce continuo y depresiones con salida (1 = sí).
 
-`python scripts3/bolsones.py sim/res_presente_final.npz` cuenta el agua profunda lejos del cauce y la separa por origen: patios, depresiones del terreno y calles.
+Hay tres scripts de diagnóstico:
+
+- `python scripts3/agua_atrapada.py sim/res_presente_final.npz` mide el agua atrapada en depresiones cerradas del terreno simulado.
+- `python scripts3/depresiones_diag.py` describe las depresiones del terreno sin corregir.
+- `python scripts3/comparar_versiones.py` compara la corrida actual con las anteriores, si están en `sim/v1` y `sim/v2`.
 
 ## Contenido
 

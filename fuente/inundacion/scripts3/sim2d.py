@@ -1,7 +1,7 @@
 # Simulación 2D de inundación (lluvia sobre malla + hidrogramas de entrada) con el esquema inercial local
 # (Bates et al., 2010; de Almeida et al., 2012) en la malla de 10 m del modelo de Tarma.
-# Uso: python sim2d.py <escenario> <etiqueta> [dCN] [prof_cauce_m] [n_urb] [h_ini] [h_fin] [edificaciones_m] [patios 0/1]
-import json, sys, time, os, numpy as np, numba as nb
+# Uso: python sim2d.py <escenario> <etiqueta> [dCN] [prof_cauce_m] [n_urb] [h_ini] [h_fin] [edificaciones_m] [patios 0/1] [terreno 0/1]
+import json, sys, time, os, heapq, numpy as np, numba as nb
 G = 9.81; DX = 10.0
 @nb.njit(parallel=True, fastmath=True, cache=True)
 def flujos(h, z, qx, qy, n2, dt, frmax):
@@ -101,11 +101,99 @@ def corregir_patios(z_obs, z_base, libre, iteraciones=4):
         if not m.any(): break
         z[m] += extra[m]
     return z
-def preparar(dcn=0.0, prof=1.5, n_urb=0.20, bloque=0.0, patios=False):
+def cauce_continuo(rio, z):
+    """El cauce rasterizado avanza en diagonal en muchos tramos; el esquema solo pasa agua entre celdas que comparten un
+    lado, así que cada escalón diagonal era un dique. Se agrega al cauce la esquina más baja de cada escalón."""
+    r = rio.copy()
+    for _ in range(3):
+        cambio = False
+        H, W = r.shape
+        for j in range(H - 1):
+            for i in range(W - 1):
+                a, b, c, d = r[j, i], r[j, i + 1], r[j + 1, i], r[j + 1, i + 1]
+                if a and d and not b and not c:             # diagonal principal
+                    if z[j, i + 1] <= z[j + 1, i]: r[j, i + 1] = True
+                    else: r[j + 1, i] = True
+                    cambio = True
+                elif b and c and not a and not d:           # diagonal secundaria
+                    if z[j, i] <= z[j + 1, i + 1]: r[j, i] = True
+                    else: r[j + 1, i + 1] = True
+                    cambio = True
+        if not cambio: break
+    return r
+@nb.njit(cache=False)                                # sin caché: se usa una vez por corrida y desde dos módulos
+def zanja_menor_corte(z, pj, pi, dmax, lmax):
+    """Camino de menor corte total (suma de lo que hay que rebajar) desde el fondo de una depresión (pj, pi) hasta una
+    celda más baja que el fondo o el borde del dominio, sin cortes mayores que dmax ni más de lmax celdas (Lindsay, 2016).
+    Devuelve los índices lineales del camino (sin la celda de salida) o un arreglo vacío si no hay salida posible."""
+    H, W = z.shape
+    zp = z[pj, pi]
+    j0 = max(0, pj - lmax); j1 = min(H, pj + lmax + 1); i0 = max(0, pi - lmax); i1 = min(W, pi + lmax + 1)
+    h = j1 - j0; w = i1 - i0
+    costo = np.full(h * w, 1e30); pasos = np.zeros(h * w, np.int64); prev = np.full(h * w, -1, np.int64); listo = np.zeros(h * w, np.bool_)
+    s = (pj - j0) * w + (pi - i0)
+    costo[s] = 0.0
+    heap = [(0.0, s)]
+    dj = np.array([1, -1, 0, 0]); di = np.array([0, 0, 1, -1])
+    while len(heap) > 0:
+        c, q = heapq.heappop(heap)
+        if listo[q]: continue
+        listo[q] = True
+        lj = q // w; li = q % w; gj = lj + j0; gi = li + i0
+        if q != s and (z[gj, gi] < zp or gj == 0 or gi == 0 or gj == H - 1 or gi == W - 1):
+            n = 0; r = prev[q]
+            while r != -1: n += 1; r = prev[r]
+            cam = np.empty(n, np.int64); r = prev[q]; k = n - 1
+            while r != -1:
+                cam[k] = (r // w + j0) * W + (r % w + i0); k -= 1; r = prev[r]
+            return cam
+        if pasos[q] >= lmax: continue
+        for t in range(4):
+            nj = lj + dj[t]; ni = li + di[t]
+            if nj < 0 or ni < 0 or nj >= h or ni >= w: continue
+            qq = nj * w + ni
+            if listo[qq]: continue
+            corte = z[nj + j0, ni + i0] - zp
+            if corte > dmax: continue
+            nc = c + max(corte, 0.0) + 1e-6
+            if nc < costo[qq]:
+                costo[qq] = nc; pasos[qq] = pasos[q] + 1; prev[qq] = q
+                heapq.heappush(heap, (nc, qq))
+    return np.empty(0, np.int64)
+def acondicionar(z, dmax=2.0, lmax=100, pasadas=6):
+    """Depresiones cerradas del terreno: a cada una se le abre una zanja de salida de menor corte desde su fondo
+    (rebajando las celdas del camino hasta la cota del fondo); las que necesitarían un corte de más de dmax o una zanja de
+    más de lmax celdas se rellenan hasta su nivel de rebalse. Devuelve el terreno corregido y un resumen."""
+    from scipy import ndimage
+    cruz = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], bool)
+    z = z.astype(np.float64).copy(); H, W = z.shape
+    abiertas = 0; celdas_zanja = np.zeros(z.shape, bool)
+    for _ in range(pasadas):
+        dep = relleno(z) - z
+        lab, n = ndimage.label(dep > 0.01, structure=cruz)
+        if n == 0: break
+        fondos = ndimage.minimum_position(z, lab, range(1, n + 1))
+        hechas = 0
+        for (pj, pi) in sorted(fondos, key=lambda q: z[q]):
+            cam = zanja_menor_corte(z, int(pj), int(pi), dmax, lmax)
+            if len(cam) == 0: continue
+            zp = z[pj, pi]
+            jj, ii = cam // W, cam % W
+            z[jj, ii] = np.minimum(z[jj, ii], zp); celdas_zanja[jj, ii] = True
+            hechas += 1
+        abiertas += hechas
+        if hechas == 0: break
+    F = relleno(z); rellenas = int((F - z > 0.01).sum())
+    return np.maximum(z, F), {'zanjas': abiertas, 'celdas_zanja': int(celdas_zanja.sum()), 'celdas_rellenas': rellenas}
+def preparar(dcn=0.0, prof=1.5, n_urb=0.20, bloque=0.0, patios=False, terreno=False):
     M = np.load('sim/malla.npz')
     z = M['Z'].copy()
     rio = M['rio']
+    if terreno:                                      # cauce continuo por lados (sin diques en los escalones diagonales)
+        rio = cauce_continuo(rio, z)
     z[rio] -= prof                                   # cauce excavado (sección no representada en el MDE)
+    if terreno:                                      # depresiones cerradas del terreno: zanja de salida o relleno
+        z, _ = acondicionar(z)
     if bloque > 0:                                   # edificaciones como obstáculos: celdas con más de la mitad construida
         ed = (M['fb'] > 0.5) & ~rio
         zb = z.copy(); z[ed] += bloque
@@ -136,9 +224,9 @@ def hidrogramas(esc, dcn=0.0):
         tt = np.arange(0, 5 * tp + 1e-9, 1 / 6); uh = np.interp(tt / tp, UH_t, UH_q) * 2.08 * en['area_km2'] / tp / 10.0
         ents.append((en, np.convolve(Pe, uh), 0.01 * en['area_km2']))
     return ents
-def correr(esc, etiqueta, dcn=0.0, prof=1.5, n_urb=0.20, h0=6.0, h1=20.0, guardar_cada=900.0, verbose=True, bloque=0.0, patios=False):
+def correr(esc, etiqueta, dcn=0.0, prof=1.5, n_urb=0.20, h0=6.0, h1=20.0, guardar_cada=900.0, verbose=True, bloque=0.0, patios=False, terreno=False):
     E = json.load(open('sim/entradas.json'))
-    z, cn, n, rio = preparar(dcn, prof, n_urb, bloque, patios)
+    z, cn, n, rio = preparar(dcn, prof, n_urb, bloque, patios, terreno)
     H, W = z.shape
     n2 = (n * n).astype(np.float64)
     h = np.zeros((H, W)); qx = np.zeros((H, W)); qy = np.zeros((H, W)); fac = np.ones((H, W))
@@ -177,10 +265,10 @@ def correr(esc, etiqueta, dcn=0.0, prof=1.5, n_urb=0.20, h0=6.0, h1=20.0, guarda
             if verbose: print('t = %5.2f h | dt %.2f s | h máx %.2f m | celdas > 10 cm: %d | %.0f s' % (t / 3600, dt, hm, (h > 0.1).sum(), time.time() - t0), flush=True)
     np.savez_compressed(f'sim/res_{esc}_{etiqueta}.npz', hmax=hmax.astype(np.float32), vmax=vmax.astype(np.float32), tmax=tmax.astype(np.float32),
                         snaps=np.array(snaps), t_snap=np.arange(len(snaps)) * guardar_cada + h0 * 3600, z=z.astype(np.float32),
-                        params=np.array([dcn, prof, n_urb, h0, h1, bloque, float(patios)]))
+                        params=np.array([dcn, prof, n_urb, h0, h1, bloque, float(patios), float(terreno)]))
     return hmax, vmax
 if __name__ == '__main__':
     a = sys.argv
     correr(a[1], a[2], float(a[3]) if len(a) > 3 else 0.0, float(a[4]) if len(a) > 4 else 1.5, float(a[5]) if len(a) > 5 else 0.20,
            float(a[6]) if len(a) > 6 else 6.0, float(a[7]) if len(a) > 7 else 20.0, bloque=float(a[8]) if len(a) > 8 else 0.0,
-           patios=bool(int(a[9])) if len(a) > 9 else False)
+           patios=bool(int(a[9])) if len(a) > 9 else False, terreno=bool(int(a[10])) if len(a) > 10 else False)

@@ -1,5 +1,5 @@
 {
- "corrida": "b3p_c0",
+ "corrida": "b3pt_c0_p1.0",
  "parametros": {
   "dCN": 0.0,
   "prof_cauce_m": 1.0,
@@ -10,7 +10,9 @@
   "celda_m": 10.0,
   "esquema": "inercial local (Bates et al., 2010; de Almeida et al., 2012)",
   "patios_sin_bolsones": true,
-  "nota_patios": "celdas libres (no calle ni cauce) encerradas por edificaciones elevadas rellenadas hasta su nivel de rebalse (vecindad de 4 celdas)"
+  "nota_patios": "celdas libres (no calle ni cauce) encerradas por edificaciones elevadas rellenadas hasta su nivel de rebalse (vecindad de 4 celdas)",
+  "terreno_corregido": true,
+  "nota_terreno": "cauce continuo por lados (esquina más baja de cada escalón diagonal) y depresiones cerradas del terreno con zanja de salida de menor corte (Lindsay 2016; corte <= 2 m, <= 100 celdas), el resto rellenado"
  },
  "umbrales": [
   0.1,
@@ -44,17 +46,17 @@
   ]
  ],
  "metricas_presente": {
-  "kappa_unidades": 0.486,
-  "kappa_ponderado_unidades": 0.618,
-  "kappa_2clases_unidades": 0.653,
-  "acuerdo_unidades": 0.705,
+  "kappa_unidades": 0.483,
+  "kappa_ponderado_unidades": 0.614,
+  "kappa_2clases_unidades": 0.661,
+  "acuerdo_unidades": 0.703,
   "techo_kappa_C03_p90": 0.597,
   "techo_kappa_C03_max": 0.489,
-  "unidades_riesgo_alto_sim": 59,
+  "unidades_riesgo_alto_sim": 55,
   "unidades_riesgo_alto_tesis_mapa": 65,
   "criticos_peligro_alto_sim": 6,
   "criticos_tesis": 9,
-  "kappa_celdas_2clases": 0.158
+  "kappa_celdas_2clases": 0.163
  },
  "qpico": {
   "presente": [
@@ -94,10 +96,25 @@
    196.3
   ]
  },
- "version_anterior": {
-  "corrida": "b3_c0",
-  "kappa_unidades": 0.488,
-  "criticos_peligro_alto_sim": 7,
-  "nota": "sin corrección de patios"
+ "versiones_anteriores": [
+  {
+   "corrida": "b3_c0",
+   "kappa_unidades": 0.488,
+   "unidades_riesgo_alto_sim": 59,
+   "criticos_peligro_alto_sim": 7,
+   "nota": "original"
+  },
+  {
+   "corrida": "b3p_c0",
+   "kappa_unidades": 0.486,
+   "unidades_riesgo_alto_sim": 59,
+   "criticos_peligro_alto_sim": 6,
+   "nota": "patios corregidos"
+  }
+ ],
+ "agua_atrapada_presente_m3": {
+  "original": 273274,
+  "patios": 220248,
+  "terreno": 21827
  }
 }
