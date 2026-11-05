@@ -1,5 +1,7 @@
 # Fuente del modelo
 
+> **Versión de inundaciones (actual).** `Tarma_ciudad_3D.html` se genera hoy desde `fuente/inundacion/`; ver su `README.md`. Esta página documenta cómo se procesaron la ciudad base y los planos del PDU, de donde salen los insumos de esa versión. Los pasos propios del Jr. Chanchamayo (lotes, fachadas, sección C3, `scripts/build.py`) corresponden a la versión anterior, que sigue en el commit `ea45e99`.
+
 `Tarma_ciudad_3D.html` se arma juntando la plantilla original del autor, los módulos JavaScript del Jr. Chanchamayo y los datos procesados.
 
 ## Regenerar el HTML (rápido, sin internet)

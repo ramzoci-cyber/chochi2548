@@ -1,0 +1,10 @@
+sim/res_presente_c0_p0.5.npz umbrales (0.3, 0.4, 1.5) {'k4': np.float64(0.022), 'po4': np.float64(0.112), 'k2': np.float64(0.167), 'po2': np.float64(0.784), 'pct_sim': np.float64(16.038), 'pct_tesis': np.float64(14.622), 'criticos': 4}
+sim/res_presente_c0_p1.5.npz umbrales (0.4, 0.5, 1.5) {'k4': np.float64(0.017), 'po4': np.float64(0.104), 'k2': np.float64(0.157), 'po2': np.float64(0.795), 'pct_sim': np.float64(13.755), 'pct_tesis': np.float64(14.622), 'criticos': 4}
+sim/res_presente_c6_p0.5.npz umbrales (0.5, 0.75, 1.5) {'k4': np.float64(0.015), 'po4': np.float64(0.121), 'k2': np.float64(0.156), 'po2': np.float64(0.798), 'pct_sim': np.float64(13.087), 'pct_tesis': np.float64(14.622), 'criticos': 4}
+sim/res_presente_c6_p1.5.npz umbrales (0.5, 0.75, 1.5) {'k4': np.float64(0.012), 'po4': np.float64(0.116), 'k2': np.float64(0.155), 'po2': np.float64(0.797), 'pct_sim': np.float64(13.248), 'pct_tesis': np.float64(14.622), 'criticos': 4}
+sim/res_presente_c11_p0.5.npz umbrales (0.5, 0.75, 1.5) {'k4': np.float64(0.017), 'po4': np.float64(0.115), 'k2': np.float64(0.166), 'po2': np.float64(0.779), 'pct_sim': np.float64(16.83), 'pct_tesis': np.float64(14.622), 'criticos': 4}
+sim/res_presente_c11_p1.5.npz umbrales (0.5, 0.75, 1.5) {'k4': np.float64(0.014), 'po4': np.float64(0.112), 'k2': np.float64(0.165), 'po2': np.float64(0.778), 'pct_sim': np.float64(16.847), 'pct_tesis': np.float64(14.622), 'criticos': 4}
+FIN
+sim/res_presente_b3_c0.npz umbrales (0.4, 0.5, 1.5) {'k4': np.float64(0.02), 'po4': np.float64(0.108), 'k2': np.float64(0.163), 'po2': np.float64(0.786), 'pct_sim': np.float64(15.389), 'pct_tesis': np.float64(14.622), 'criticos': 5}
+sim/res_presente_b3_c6.npz umbrales (0.5, 0.75, 1.5) {'k4': np.float64(0.014), 'po4': np.float64(0.117), 'k2': np.float64(0.16), 'po2': np.float64(0.786), 'pct_sim': np.float64(15.25), 'pct_tesis': np.float64(14.622), 'criticos': 5}
+FIN2

@@ -1,0 +1,95 @@
+{
+ "corrida": "b3_c0",
+ "parametros": {
+  "dCN": 0.0,
+  "prof_cauce_m": 1.0,
+  "n_bloque": 0.1,
+  "edificaciones_m": 3.0,
+  "h_ini": 6.0,
+  "h_fin": 18.0,
+  "celda_m": 10.0,
+  "esquema": "inercial local (Bates et al., 2010; de Almeida et al., 2012)"
+ },
+ "umbrales": [
+  0.1,
+  0.2,
+  2.0
+ ],
+ "matriz": [
+  [
+   1,
+   2,
+   2,
+   3
+  ],
+  [
+   1,
+   2,
+   2,
+   3
+  ],
+  [
+   2,
+   2,
+   3,
+   3
+  ],
+  [
+   2,
+   3,
+   3,
+   4
+  ]
+ ],
+ "metricas_presente": {
+  "kappa_unidades": 0.488,
+  "kappa_ponderado_unidades": 0.62,
+  "kappa_2clases_unidades": 0.653,
+  "acuerdo_unidades": 0.706,
+  "techo_kappa_C03_p90": 0.597,
+  "techo_kappa_C03_max": 0.489,
+  "unidades_riesgo_alto_sim": 59,
+  "unidades_riesgo_alto_tesis_mapa": 65,
+  "criticos_peligro_alto_sim": 7,
+  "criticos_tesis": 9,
+  "kappa_celdas_2clases": 0.163
+ },
+ "qpico": {
+  "presente": [
+   86.0,
+   77.2
+  ],
+  "cmip5_rcp45_2031_2060": [
+   129.3,
+   117.2
+  ],
+  "cmip5_rcp45_2071_2100": [
+   148.7,
+   129.4
+  ],
+  "cmip5_rcp85_2031_2060": [
+   193.6,
+   137.3
+  ],
+  "cmip5_rcp85_2071_2100": [
+   378.6,
+   322.4
+  ],
+  "cmip6_ssp245_2031_2060": [
+   119.9,
+   98.8
+  ],
+  "cmip6_ssp245_2071_2100": [
+   196.9,
+   183.4
+  ],
+  "cmip6_ssp585_2031_2060": [
+   116.7,
+   110.6
+  ],
+  "cmip6_ssp585_2071_2100": [
+   221.0,
+   196.3
+  ]
+ }
+}

@@ -1,97 +1,88 @@
-# Tarma 3D · Jr. Chanchamayo a detalle
+# Tarma 3D · Susceptibilidad a inundaciones
 
-Modelo 3D interactivo de la ciudad de Tarma (Junín, Perú) con el **Jr. Chanchamayo** modelado lote por lote, como apoyo a la tesis sobre escurrimiento urbano y la microcuenca del punto crítico T01.
-
-Desde la versión de 2025, el modelo está **ajustado a los planos del PDU de Tarma**:
-
-- láminas 25 (Sistema vial) y 26 (Vías locales) de la propuesta JLORE;
-- Plano Total 2025 modificado.
-
-Las cotas del terreno salen de las curvas de nivel del plano. Las manzanas, los anchos de calle y las líneas de propiedad salen del plano, y cada calle tiene la sección que le asigna la propuesta.
+Modelo 3D interactivo de la ciudad de Tarma (Junín, Perú) con una **simulación 2D de inundación** para los 9 escenarios de lluvia de la tesis: el presente y CMIP5/CMIP6, con emisiones moderadas y altas, en 2031–2060 y 2071–2100. La simulación está calibrada con los mapas de peligro y riesgo de la tesis. Es el apoyo visual y numérico del artículo *Influencia espacio-temporal de las lluvias extremas proyectadas con CMIP5 y CMIP6 en el peligro hidrológico de la ciudad de Tarma* (Ramos Chagua y López Silva, UCSS).
 
 Abre `Tarma_ciudad_3D.html` con doble clic en Chrome, Edge o Firefox. Necesita internet la primera vez, porque carga three.js desde jsDelivr. Funciona mejor en una computadora con tarjeta gráfica.
 
-![Corredor del Jr. Chanchamayo](docs/capturas/01_corredor.jpg)
+![Tormenta de diseño de 25 años en el centro de Tarma (escenario presente, 12:45)](docs/capturas/04_centro_tormenta_pico.jpg)
 
 ## Qué incluye
 
 | | |
 |---|---|
-| **Planos del PDU (2025)** | **Marco.** Todo el modelo está en el marco de coordenadas del Plano Total 2025 (WGS84 UTM 18S, como en el AutoCAD). **Terreno.** Sale de las curvas de nivel del plano, cada 5 m. **Calles.** 1 238 manzanas del plano; las calzadas tienen el ancho medido entre manzanas y hay veredas y sardineles en toda la ciudad. **Fichas.** Clic en una calle: ancho actual y ancho propuesto, con la sección típica dibujada (C1–C8, B1–B4, vías locales). Clic en una manzana: área, perímetro y cota de cada lado. **Propuesta PDU.** El botón marca en rojo la franja de los lotes que quedaría dentro de la vía ensanchada |
-| **Jr. Chanchamayo (778,2 m, cuadras 1–7 y prolongación)** | 101 lotes con su volumen y altura reales (ráster Google Open Buildings 2.5D, 2023) y 26 cercos o terrenos sin edificar. Las líneas de propiedad y los linderos salen del contorno de manzana del plano, y el perfil longitudinal sale de sus curvas: de 3 065,4 a 3 053,9 m s. n. m., con 1,48 % de pendiente media. Las fachadas tienen vanos con derrame, rejas, persianas comerciales, balcones de concreto y de madera, volados, zócalos, pórticos de concreto visibles, techos de teja, losa o calamina, tanques Rotoplas y fierros en espera |
-| **Sección propuesta C3** | La lámina 25 asigna al jirón la sección C3 de 10,50 m: vereda 1,20 · cuneta 0,40 · vía rodada 7,30 · cuneta 0,40 · vereda 1,20. Clic sobre la calzada: ficha de la estación con el ancho actual, la sección dibujada y la afectación por lado. La C3 afectaría a 86 de los 101 lotes, con una mediana de 1,27 m de frente |
-| **Calle** | Calzada de losas de concreto con bombeo del 2 %, cunetas, sardineles de 17 cm, veredas con bruñas, empalmes de 12 calles transversales, cruceros peatonales, 26 buzones y 44 sumideros |
-| **Mobiliario** | 24 postes de concreto con cruceta, alumbrado, transformadores y cables. 3 semáforos (los cruces semaforizados según OSM), placas con el nombre de las calles y 38 vehículos estacionados: autos, mototaxis, combis y camionetas |
-| **Negocios reales** | 12 letreros con nombre y dirección en el jirón (Overture Places / Meta y fuentes web), en ubicación aproximada |
-| **Recorrido virtual** | Recorrido a nivel de calle desde la Plaza de Armas hasta la Av. Manuel Odría, con pausa para mirar alrededor, control de velocidad y el tramo actual en pantalla |
-| **Ficha de lote** | Clic en una casa: cuadra, lado, N° aproximado, pisos, altura, frente y fondo, línea de propiedad, afectación C3, uso y tipología |
-| **Lluvia y lámina de agua** | Q = C·i·A (método racional) y Manning en la sección actual del plano (línea azul) y en la sección C3 propuesta (línea naranja). Muestra el tirante y el caudal en T01 y el perfil del tirante a lo largo del jirón. **Es ilustrativo y no está calibrado** |
-| **Hitos remasterizados** | Plaza de Armas (jardines, flores, pileta de dos tazas, bancas, faroles), Catedral Santa Ana (neoclásica, cruz latina, cúpula, dos torres con reloj y campanario) y Estadio Unión Tarma (cancha reglamentaria, pista atlética, tribuna occidente techada, tribuna oriente) |
+| **Mapas de la tesis** | **Riesgo (C-04).** 887 unidades (573 manzanas y 314 celdas de 1 ha) con su vulnerabilidad y su riesgo en los 9 escenarios. **Peligro (C-03).** Los 9 escenarios. **Puntos críticos.** Los 15 del cuadro C-04. Todo extraído de los PDF y georreferenciado al Plano Total 2025 |
+| **Simulación 2D** | Tormenta de diseño de 25 años (24 h, bloques alternos con la IDF de la tesis) sobre una malla de 10 m (5,2 × 8 km). Usa el esquema inercial local, el terreno de las curvas del plano, las edificaciones como obstáculos, el cauce y los hidrogramas de 10 cuencas aportantes (SCS-CN e hidrograma unitario del SCS) |
+| **Calibración** | Escenario presente, contra el riesgo por manzana de C-04: κ = 0,49, κ ponderado = 0,62 y 70,6 % de acuerdo. Es el mismo nivel que logra el propio mapa C-03 de la tesis pasado por la matriz de riesgo. Umbrales de peligro por tirante: 0,10, 0,20 y 2,0 m |
+| **Animación de la tormenta** | El agua sube y baja en las calles de 10:00 a 17:00, con el hietograma y el área inundada en el gráfico |
+| **Capas** | Inundación en el tiempo, tirante máximo, peligro de la tesis, riesgo de la tesis, peligro simulado, riesgo simulado y vulnerabilidad |
+| **Fichas** | Por manzana: riesgo de la tesis y simulado en los 9 escenarios. Por punto crítico: tirante y velocidad. Por calle: tirante, velocidad, hora del máximo y ancho del plano |
+| **Ciudad** | Terreno de las curvas del Plano Total 2025, 1 238 manzanas y calles del plano con veredas, edificios recortados a manzanas, y la Plaza de Armas, la Catedral y el Estadio como referencias |
 
-La ciudad base, la microcuenca, el eje y la simulación de lluvia del modelo original se conservan. Se trasladaron al marco del plano.
-
-| Calles del plano | Ficha de vía (sección C3) | Ficha de manzana |
+| Riesgo por manzana · tesis (C-04), presente | Riesgo por manzana · simulación, presente | Peligro de la tesis (C-03), presente |
 |---|---|---|
-| ![](docs/capturas/10_calles_plano.jpg) | ![](docs/capturas/11_ficha_via.jpg) | ![](docs/capturas/12_ficha_manzana.jpg) |
-| **Propuesta PDU (ensanches)** | **Jr. Chanchamayo, cuadra 2: actual vs. C3** | **Lámina de agua (90 mm/h)** |
-| ![](docs/capturas/13_propuesta_pdu.jpg) | ![](docs/capturas/14_seccion_chanchamayo.jpg) | ![](docs/capturas/06_lluvia_lamina.jpg) |
-| **Calle (cdra. 7)** | **Plaza de Armas** | **Estadio** |
-| ![](docs/capturas/02_calle_cdra7.jpg) | ![](docs/capturas/07_plaza.jpg) | ![](docs/capturas/09_estadio.jpg) |
+| ![](docs/capturas/01_general_riesgo_tesis.jpg) | ![](docs/capturas/02_general_riesgo_sim.jpg) | ![](docs/capturas/03_general_peligro_tesis.jpg) |
+| **Riesgo · tesis, CMIP5 RCP 8.5 2071–2100** | **Riesgo · simulación, CMIP5 RCP 8.5 2071–2100** | **Tirante máximo, CMIP5 RCP 8.5 2071–2100** |
+| ![](docs/capturas/06_general_riesgo_tesis_QA2.jpg) | ![](docs/capturas/07_general_riesgo_sim_QA2.jpg) | ![](docs/capturas/05_centro_tirante_max_QA2.jpg) |
+| **Ficha de manzana** | **Ficha de punto crítico** | **Peligro simulado (sur)** |
+| ![](docs/capturas/10_ficha_manzana.jpg) | ![](docs/capturas/11_ficha_punto_critico.jpg) | ![](docs/capturas/09_sur_peligro_sim.jpg) |
 
-## Lo que dicen los planos (resumen para la tesis)
+## Resultados por escenario
 
-- **Desfase horizontal.** Las capas satelitales (OSM, Microsoft, Google, Sentinel-2) estaban desplazadas respecto al plano: en mediana 1,25 m al oeste y 5,5 m al norte. El desfase varía en la ciudad y se corrigió con un campo suave.
-- **Cotas.** Las curvas del plano están unos **10,2 m más arriba** que el MDE Copernicus GLO-30. En la Plaza de Armas, el plano da 3 066,2 m y el GLO-30, 3 056,7 m. Probablemente es un datum vertical distinto. Conviene confirmarlo con un BM del IGN; para la hidráulica cuentan las pendientes, que no cambian.
-- **Jr. Chanchamayo.** Mide hoy 8,43 m entre líneas de propiedad (mediana). El 75 % del tramo es más angosto que los 10,50 m de la sección C3 propuesta.
-- **Lluvia de 60 mm/h.** En la cuadra 2 (7,0 m de ancho, pendiente mínima), el tirante máximo bajaría de 40,1 a 33,3 cm con la C3. En T01 casi no cambia (28,7 → 27,7 cm), porque ahí la calle ya es más ancha.
-- **Detalle.** El método completo, las tablas de secciones y las limitaciones están en `docs/metodologia_jr_chanchamayo.md`, sección 7.
+| Escenario | P24 en la Plaza | Unidades en riesgo alto: tesis · simulación | Área urbana con > 10 cm | Puntos críticos en peligro alto: tesis · simulación |
+|---|---|---|---|---|
+| Presente (1981–2020) | 37,2 mm | 63 · **59** | 1,40 km² | 9 · **7** |
+| CMIP5 RCP 4.5 · 2031–2060 | 42,4 mm (+14 %) | 63 · **68** | 1,55 km² | 9 · **7** |
+| CMIP5 RCP 4.5 · 2071–2100 | 42,6 mm (+14 %) | 63 · **70** | 1,58 km² | 9 · **7** |
+| CMIP5 RCP 8.5 · 2031–2060 | 45,7 mm (+23 %) | 76 · **72** | 1,64 km² | 11 · **8** |
+| CMIP5 RCP 8.5 · 2071–2100 | 63,6 mm (+71 %) | 203 · **94** | 2,02 km² | 15 · **9** |
+| CMIP6 SSP2-4.5 · 2031–2060 | 41,4 mm (+11 %) | 63 · **63** | 1,50 km² | 9 · **7** |
+| CMIP6 SSP2-4.5 · 2071–2100 | 50,2 mm (+35 %) | 77 · **78** | 1,72 km² | 11 · **9** |
+| CMIP6 SSP5-8.5 · 2031–2060 | 41,5 mm (+12 %) | 63 · **64** | 1,52 km² | 9 · **7** |
+| CMIP6 SSP5-8.5 · 2071–2100 | 50,7 mm (+36 %) | 78 · **81** | 1,76 km² | 11 · **9** |
 
-## Corregir el modelo con tu levantamiento de campo
+«Unidades en riesgo alto» incluye las de riesgo alto y muy alto. Un punto crítico cuenta en la simulación si tiene al menos 0,20 m de agua a 30 m o menos.
 
-1. Abre `datos/lotes_jr_chanchamayo.csv` en Excel o LibreOffice. Hay una fila por lote, con coordenadas de la fachada en WGS84 y UTM 18S (marco del plano).
-2. Corrige lo que observes en campo: `pisos`, `altura_m`, `tipologia` (`adobe` / `ladrillo` / `tarrajeo`), `uso` (`comercio` / `vivienda`), `techo` (`teja` / `losa` / `calamina`), `color_fachada` (hex, p. ej. `#E8C25A`), `volado`, `balcon`, `obra_inconclusa`, `tanque` (1/0) y `nombre_negocio`. Marca la columna `verificado_en_campo`.
-3. Ejecuta `python herramientas/actualizar_lotes.py`. Solo necesita Python 3 y reescribe el HTML; deja una copia `.bak`.
+- **Concordancia.** En 8 de los 9 escenarios, la simulación da casi el mismo número de unidades en riesgo alto que la tesis, con 6 unidades de diferencia o menos. Calibrada solo con el presente, reproduce también el aumento de los escenarios CMIP6 de 2071–2100: 78 frente a 79 en SSP2-4.5 y 81 frente a 80 en SSP5-8.5.
+- **Excepción: CMIP5 RCP 8.5 2071–2100.** La tesis salta a 203 unidades y a 97 % de la ciudad en peligro alto. La simulación sube a 94 unidades y a 2,02 km² inundados (+45 %). El salto de la tesis es el de un factor de lluvia clasificado, que eleva de clase a toda la ciudad. La simulación concentra el aumento en el cauce, sus riberas y las calles bajas.
+- **Profundidad.** El agua profunda (más de 50 cm) crece el doble de rápido que la extensión inundada: +19 % a +103 % frente a +7 % a +45 %.
+- **Puntos críticos.** PC-2 a PC-6 y PC-15 no llegan a peligro alto en ningún escenario: tienen menos de 0,20 m. Es probable que dependan del drenaje o de obras que no están en el plano; son los primeros que conviene verificar en campo.
 
-## Capas para SIG (QGIS, ArcGIS) y AutoCAD
+El método, la calibración, la discusión y las limitaciones están en `docs/metodologia_inundaciones.md`.
+
+## Capas para SIG (QGIS, ArcGIS)
 
 | Archivo | Contenido |
 |---|---|
-| `datos/lotes_jr_chanchamayo.csv` / `.geojson` | Lotes del jirón, con línea de propiedad y afectación C3 |
-| `datos/eje_jr_chanchamayo.geojson` | Eje del jirón centrado entre las líneas del plano |
-| `datos/plano/manzanas_plano.geojson` | Manzanas del Plano Total 2025, con área, perímetro y lados |
-| `datos/plano/vias_plano.geojson` | Calles con ancho actual, ancho propuesto y sección del PDU |
-| `datos/plano/cotas_vias_locales.geojson` | Cotas de la lámina 26: ancho dibujado y ancho propuesto |
-| `datos/plano/secciones_viales.csv` | Secciones típicas (láminas 25 y 26) con sus componentes |
-| `datos/plano/perfil_jr_chanchamayo.csv` | Perfil del jirón cada 2 m: cotas, anchos, afectación y área aportante |
-| `datos/plano/mde_plano_5m.tif` | MDE de 5 m con las curvas del plano (EPSG:32718) |
-| `datos/plano/curvas_nivel_plano.zip` | Curvas de nivel del plano (shapefile, EPSG:32718) |
+| `datos/inundacion/unidades_riesgo.geojson` | 887 unidades de C-04, con vulnerabilidad, riesgo de la tesis, riesgo simulado y tirante P90 por escenario |
+| `datos/inundacion/puntos_criticos.geojson` | 15 puntos críticos, con tirante y velocidad máximos por escenario |
+| `datos/inundacion/tirante_max_<código>.tif` | Tirante máximo simulado (m), 10 m, EPSG:32718 |
+| `datos/inundacion/peligro_tesis_presente_cuenca.tif` | Peligro del presente (C-03) en toda la cuenca, EPSG:32718 |
+| `datos/inundacion/resumen_escenarios.csv` | Tesis y simulación por escenario |
+| `datos/inundacion/calibracion.csv` | Corridas de calibración |
+| `datos/plano/` | Capas del Plano Total 2025: manzanas, vías, curvas de nivel y MDE de 5 m |
 
-Los GeoJSON están en WGS84 (EPSG:4326). El TIF y el shapefile están en UTM 18S, en el mismo marco que el AutoCAD.
+Los GeoJSON están en WGS84 (EPSG:4326). Los TIF están en UTM 18S, en el marco del Plano Total 2025. Los códigos de escenario son:
+
+| Código | Escenario |
+|---|---|
+| `PRES` | Presente (1981–2020) |
+| `QM1`, `QM2` | CMIP5 RCP 4.5 (2031–2060 y 2071–2100) |
+| `QA1`, `QA2` | CMIP5 RCP 8.5 (2031–2060 y 2071–2100) |
+| `SM1`, `SM2` | CMIP6 SSP2-4.5 (2031–2060 y 2071–2100) |
+| `SA1`, `SA2` | CMIP6 SSP5-8.5 (2031–2060 y 2071–2100) |
 
 ## Estructura
 
 ```
-Tarma_ciudad_3D.html           modelo final (un solo archivo)
-datos/                         tabla de lotes editable (CSV) y capas SIG (GeoJSON, TIF, SHP)
-herramientas/                  actualizar_lotes.py
-docs/metodologia_jr_chanchamayo.md   método, fuentes, supuestos y limitaciones (para la tesis)
-docs/capturas/                 imágenes del modelo
-fuente/                        código y datos para regenerar el HTML (ver fuente/README.md)
+Tarma_ciudad_3D.html                 modelo de susceptibilidad a inundaciones (un solo archivo)
+datos/inundacion/                    capas SIG y tablas de la simulación y de la tesis
+datos/plano/                         capas del Plano Total 2025 (base del modelo)
+docs/metodologia_inundaciones.md     método, calibración, resultados y limitaciones (para la tesis y el artículo)
+docs/capturas/                       imágenes del modelo
+fuente/inundacion/                   código e insumos para repetir la simulación y regenerar el HTML
+fuente/                              procesamiento de la ciudad base y de los planos del PDU
 ```
 
-## Fuentes y licencias
+## Versión anterior (Jr. Chanchamayo)
 
-- **Planos.** PDU de Tarma de la Municipalidad Provincial de Tarma: láminas 25 (Sistema vial) y 26 (Vías locales), propuesta JLORE 2025, y Plano Total 2025 modificado por JLORE. Se usaron las manzanas, las curvas de nivel, las secciones viales, los nombres de calles y los linderos de equipamientos. No se incluyen los DWG ni los nombres de propietarios. Antes de publicar las capas derivadas de `datos/plano/`, conviene confirmar con los autores de los planos que se pueden difundir.
-- © Colaboradores de OpenStreetMap (ODbL), vía Overture Maps Foundation (release 2026-09-23.1): ejes de vías, cruces, semáforos, uso de suelo, ríos, plaza, catedral y estadio.
-- Google Open Buildings 2.5D Temporal v1, 2023 (CC BY 4.0): presencia y altura de edificaciones a 0,5 m.
-- Microsoft y Google building footprints vía Overture (ODbL / CC BY 4.0): pistas de linderos y ciudad base.
-- Overture Places (CDLA-Permissive-2.0): negocios con dirección en el jirón.
-- Copernicus GLO-30, Sentinel-2 y ESA WorldCover: terreno fuera del casco urbano y textura del modelo original.
-
-**Límites que conviene declarar en la tesis:**
-
-- **Street View e imágenes satelitales.** Desde el entorno donde se hizo este trabajo no hubo acceso a Google Street View ni a imágenes satelitales de alta resolución, porque la red estaba restringida. Además, los términos de Google Maps Platform prohíben crear modelos 3D a partir de Street View.
-- **Datos medidos.** Las líneas de propiedad, los anchos de calle y las cotas salen de los planos. El volumen y la altura de los edificios salen de datos abiertos medidos.
-- **Datos representativos.** Los colores, materiales, vanos y usos son **representativos**: se asignaron por reglas y deben verificarse en campo con la tabla CSV. Las veredas de la ciudad, fuera del jirón, también son representativas.
-
-Los detalles están en `docs/metodologia_jr_chanchamayo.md`.
+El modelo detallado del Jr. Chanchamayo y del punto crítico T01 (lotes, fachadas, sección C3 y lámina de agua por el método racional) se retiró porque ya no forma parte de la investigación. Sigue en el historial de git: `git checkout ea45e99 -- Tarma_ciudad_3D.html datos docs herramientas`.
