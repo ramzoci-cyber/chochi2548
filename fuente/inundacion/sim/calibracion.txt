@@ -8,3 +8,4 @@ FIN
 sim/res_presente_b3_c0.npz umbrales (0.4, 0.5, 1.5) {'k4': np.float64(0.02), 'po4': np.float64(0.108), 'k2': np.float64(0.163), 'po2': np.float64(0.786), 'pct_sim': np.float64(15.389), 'pct_tesis': np.float64(14.622), 'criticos': 5}
 sim/res_presente_b3_c6.npz umbrales (0.5, 0.75, 1.5) {'k4': np.float64(0.014), 'po4': np.float64(0.117), 'k2': np.float64(0.16), 'po2': np.float64(0.786), 'pct_sim': np.float64(15.25), 'pct_tesis': np.float64(14.622), 'criticos': 5}
 FIN2
+sim/res_presente_b3p_c0.npz umbrales (0.4, 0.5, 1.5) {'k4': np.float64(0.019), 'po4': np.float64(0.105), 'k2': np.float64(0.158), 'po2': np.float64(0.79), 'pct_sim': np.float64(14.568), 'pct_tesis': np.float64(14.622), 'criticos': 4}

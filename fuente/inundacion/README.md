@@ -7,7 +7,7 @@ Ejecuta todos los comandos desde esta carpeta (`fuente/inundacion`).
 **Dependencias:**
 
 ```bash
-pip install numpy scipy numba shapely pyproj rasterio pillow pdfplumber
+pip install numpy scipy numba scikit-image shapely pyproj rasterio pillow pdfplumber
 ```
 
 Para los pasos 1 y 2 también hace falta `pdfimages` (poppler-utils).
@@ -15,7 +15,7 @@ Para los pasos 1 y 2 también hace falta `pdfimages` (poppler-utils).
 ## Regenerar el HTML con simulaciones nuevas (unos 30 minutos)
 
 ```bash
-python scripts3/sim2d.py presente final 0 1.0 0.10 6 18 3.0   # escenario presente, parámetros calibrados
+python scripts3/sim2d.py presente final 0 1.0 0.10 6 18 3.0 1   # escenario presente, parámetros calibrados, patios sin bolsones
 bash scripts3/lote_final.sh                                     # los 8 escenarios futuros
 python scripts3/exportar_inund.py final                          # empaqueta resultados y mapas de la tesis -> inund/datos_mod.json
 python scripts3/build_inund.py                                   # escribe ../../Tarma_ciudad_3D.html
@@ -23,6 +23,18 @@ python scripts3/exportar_sig.py ../../datos/inundacion           # GeoJSON, GeoT
 ```
 
 Los resultados `sim/res_<escenario>_final.npz` (unos 20 MB cada uno) no están en el repositorio.
+
+Los argumentos de `sim2d.py` son, en orden:
+
+1. escenario y etiqueta;
+2. ajuste del CN;
+3. profundidad del cauce (m);
+4. rugosidad de bloque;
+5. hora de inicio y de fin;
+6. altura de las edificaciones (m);
+7. corrección de patios (1 = sí).
+
+`python scripts3/bolsones.py sim/res_presente_final.npz` cuenta el agua profunda lejos del cauce y la separa por origen: patios, depresiones del terreno y calles.
 
 ## Contenido
 

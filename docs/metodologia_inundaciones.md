@@ -4,11 +4,11 @@ Este documento explica cómo se construyó la versión de inundaciones del model
 
 **Resumen.**
 
-- **Qué es.** Una simulación 2D de la tormenta de diseño de 25 años (24 h) sobre una malla de 10 m de la ciudad, con el terreno de las curvas del plano y las edificaciones como obstáculos.
+- **Qué es.** Una simulación 2D de la tormenta de diseño de 25 años (24 h) sobre una malla de 10 m de la ciudad, con el terreno de las curvas del plano, las edificaciones como obstáculos y los patios desaguando a la calle.
 - **Escenarios.** Corre los 9 escenarios de la tesis: el presente y CMIP5/CMIP6, con emisiones moderadas y altas, en 2031–2060 y 2071–2100.
 - **Calibración.** Con el escenario presente, a la escala de manzana, contra el cuadro C-04.
-- **Concordancia.** κ = 0,49; κ ponderado = 0,62; 70,6 % de acuerdo en 4 clases. Es la misma concordancia que logra el propio mapa de peligro C-03 de la tesis pasado por la matriz de riesgo (κ = 0,49 a 0,60).
-- **Puntos críticos.** La simulación marca 7 de los 15 puntos críticos en peligro alto; la tesis, 9.
+- **Concordancia.** κ = 0,49; κ ponderado = 0,62; 70,5 % de acuerdo en 4 clases. Es la misma concordancia que logra el propio mapa de peligro C-03 de la tesis pasado por la matriz de riesgo (κ = 0,49 a 0,60).
+- **Puntos críticos.** La simulación marca 6 de los 15 puntos críticos en peligro alto; la tesis, 9.
 
 ## 1. Cambio de enfoque y limpieza del modelo
 
@@ -133,6 +133,16 @@ Dentro de la ciudad, la fracción de techos y calzadas toma CN 98.
 
 **Edificaciones.** Las celdas con más de la mitad construida se elevan 3 m y actúan como obstáculos: el agua corre por las calles.
 
+**Patios sin bolsones.** Al elevar las edificaciones, los techos siguen la pendiente del terreno, y los patios y espacios libres rodeados de construcción quedaban como pozos sin salida. El agua de toda la manzana corría hacia el patio más bajo y se acumulaba ahí, a veces con más de 2 m.
+
+La corrección rellena esas celdas libres hasta su nivel de rebalse:
+
+- solo en las celdas que no son calle ni cauce;
+- solo en la parte de la depresión que crean las edificaciones, comparando con el terreno sin ellas;
+- con la vecindad de 4 celdas del esquema numérico.
+
+Así el agua de techos y patios sale a la calle, como en la realidad por el zaguán o el desagüe de la vivienda. Se elevaron 2 043 celdas, 0,43 m en promedio. Las depresiones del propio terreno y los badenes de las calles no se tocan, porque el agua que se junta en una calle es parte del peligro.
+
 **Cauce.** Las celdas del río se profundizan 1,0 m, porque el MDE no representa la sección del cauce.
 
 **Condiciones de borde.** Los bordes son abiertos, con tirante normal y pendiente 0,01. Los hidrogramas entran en parches de 3 × 3 celdas.
@@ -188,25 +198,44 @@ Para cada corrida se buscaron los umbrales que mejor reproducen C-04.
 | `c11_p1.5` | +11 | 1,5 | 0,20 | no | 0,05 · 0,75 · 2,00 | 0,462 | 0,609 | 0,607 | 64 / 65 | 12 / 6 | 0,165 |
 | `b3_c0` | +0 | 1,0 | 0,10 | +3 m | 0,05 · 0,20 · 2,00 | 0,488 | 0,620 | 0,653 | 59 / 65 | 9 / 4 | 0,163 |
 | `b3_c6` | +6 | 1,0 | 0,10 | +3 m | 0,05 · 0,75 · 2,00 | 0,465 | 0,612 | 0,590 | 64 / 65 | 10 / 7 | 0,160 |
+| `b3p_c0` | +0 | 1,0 | 0,10 | +3 m | 0,05 · 0,30 · 1,50 | 0,472 | 0,615 | 0,618 | 65 / 65 | 6 / 3 | 0,158 |
 
-La última columna es el κ en 2 clases frente a C-03, con los umbrales que mejor reproducen C-03 a escala de celda; la corrida `base` no se evaluó a esa escala.
+La última columna es el κ en 2 clases frente a C-03, con los umbrales que mejor reproducen C-03 a escala de celda; la corrida `base` no se evaluó a esa escala. `b3p_c0` es `b3_c0` con la corrección de patios.
 
 ### 6.3 Resultado
 
-**Parámetros elegidos (corrida `b3_c0`):**
+**Parámetros elegidos (corrida `b3p_c0`):**
 
 - CN de la tabla, sin ajuste;
 - cauce de 1,0 m;
 - edificaciones como obstáculos de 3 m;
-- rugosidad de bloque de 0,10.
+- rugosidad de bloque de 0,10;
+- patios sin bolsones (ver sección 5).
 
-Las nueve corridas logran un acuerdo parecido con C-04 (κ entre 0,46 y 0,49), así que la elección se basó en el realismo físico y en los puntos críticos. La corrida `b3_c0`:
+Las corridas logran un acuerdo parecido con C-04 (κ entre 0,46 y 0,49), así que la elección se basó en el realismo físico. Entre las corridas sin corrección de patios, `b3_c0` tenía el κ más alto en 4 clases (0,49) y en 2 clases (0,65), y es una de las dos que representan las edificaciones como obstáculos. La versión final `b3p_c0` es la misma corrida con los patios corregidos.
 
-- tiene el κ más alto en 4 clases (0,49) y en 2 clases (0,65);
-- es una de las dos que representan las edificaciones como obstáculos;
-- marca con agua (≥ 10 cm) 9 de los 15 puntos críticos, el mismo número que la tesis ubica en peligro alto en el presente.
+Con los umbrales finales, `b3p_c0` da:
 
-En la tabla, el primer umbral aparece en 0,05 m porque la búsqueda no lo distingue (ver abajo).
+| Métrica | Valor |
+|---|---|
+| κ en 4 clases | 0,486 |
+| κ ponderado | 0,618 |
+| κ en 2 clases | 0,653 |
+| Acuerdo | 70,5 % |
+| Unidades en riesgo alto | 59 (65 en el mapa) |
+| Puntos críticos en peligro alto | 6 |
+
+**Efecto de la corrección de patios.** El acuerdo casi no cambia (κ 0,488 → 0,486), porque los bolsones eran celdas sueltas dentro de las manzanas. Sí cambian algunos puntos críticos:
+
+| Punto | Antes | Después |
+|---|---|---|
+| PC-14 | 0,32 m | 0,05 m |
+| PC-13 | 0,16 m | 0,06 m |
+| PC-7 | 0,13 m | 0,09 m |
+
+Su agua venía de un patio vecino sin salida. Por eso la simulación marca ahora 6 puntos críticos en peligro alto en el presente, en vez de 7.
+
+En la tabla, el primer umbral aparece en 0,05 m porque la búsqueda no lo distingue (ver abajo). Para `b3p_c0` la búsqueda propone 0,30 m como segundo umbral, pero se mantuvo 0,20 m (la altura del sardinel): el κ es casi el mismo y el número de unidades en riesgo alto queda más cerca del mapa.
 
 **Umbrales de peligro por tirante máximo:**
 
@@ -225,19 +254,19 @@ El umbral de 0,20 m corresponde a la altura de un sardinel: el agua que lo super
 
 ## 7. Resultados por escenario
 
-Los 9 escenarios se corrieron con los mismos parámetros calibrados. Solo cambian la lluvia y, con ella, los hidrogramas de entrada.
+Los 9 escenarios se corrieron con los mismos parámetros calibrados y la corrección de patios. Solo cambian la lluvia y, con ella, los hidrogramas de entrada.
 
 | Escenario | P24 en la Plaza | Tesis: ciudad en peligro alto | Unidades en riesgo alto: tesis (tabla / mapa) · simulación | κ por unidad | Puntos críticos en peligro alto: tesis · simulación | Área urbana > 10 cm | Área > 50 cm | Edificaciones con > 30 cm |
 |---|---|---|---|---|---|---|---|---|
-| Presente (1981–2020) | 37,2 mm | 21,6 % | 63 / 65 · **59** | 0,49 | 9 · **7** | 1,40 km² | 0,72 km² | 2 517 |
-| CMIP5 RCP 4.5 · 2031–2060 | 42,4 mm (+14 %) | 23,4 % | 63 / 65 · **68** | 0,47 | 9 · **7** | 1,55 km² | 0,92 km² | 2 820 |
-| CMIP5 RCP 4.5 · 2071–2100 | 42,6 mm (+14 %) | 24,1 % | 63 / 65 · **70** | 0,45 | 9 · **7** | 1,58 km² | 0,97 km² | 2 872 |
-| CMIP5 RCP 8.5 · 2031–2060 | 45,7 mm (+23 %) | 39,1 % | 76 / 78 · **72** | 0,36 | 11 · **8** | 1,64 km² | 1,05 km² | 2 969 |
-| CMIP5 RCP 8.5 · 2071–2100 | 63,6 mm (+71 %) | 97,3 % | 203 / 206 · **94** | 0,04 | 15 · **9** | 2,02 km² | 1,46 km² | 3 553 |
-| CMIP6 SSP2-4.5 · 2031–2060 | 41,4 mm (+11 %) | 22,6 % | 63 / 65 · **63** | 0,48 | 9 · **7** | 1,50 km² | 0,86 km² | 2 743 |
-| CMIP6 SSP2-4.5 · 2071–2100 | 50,2 mm (+35 %) | 46,3 % | 77 / 79 · **78** | 0,36 | 11 · **9** | 1,72 km² | 1,15 km² | 3 131 |
-| CMIP6 SSP5-8.5 · 2031–2060 | 41,5 mm (+12 %) | 23,0 % | 63 / 65 · **64** | 0,47 | 9 · **7** | 1,52 km² | 0,88 km² | 2 774 |
-| CMIP6 SSP5-8.5 · 2071–2100 | 50,7 mm (+36 %) | 48,3 % | 78 / 80 · **81** | 0,35 | 11 · **9** | 1,76 km² | 1,19 km² | 3 181 |
+| Presente (1981–2020) | 37,2 mm | 21,6 % | 63 / 65 · **59** | 0,49 | 9 · **6** | 1,37 km² | 0,71 km² | 2 194 |
+| CMIP5 RCP 4.5 · 2031–2060 | 42,4 mm (+14 %) | 23,4 % | 63 / 65 · **65** | 0,47 | 9 · **6** | 1,52 km² | 0,91 km² | 2 470 |
+| CMIP5 RCP 4.5 · 2071–2100 | 42,6 mm (+14 %) | 24,1 % | 63 / 65 · **68** | 0,46 | 9 · **6** | 1,55 km² | 0,96 km² | 2 527 |
+| CMIP5 RCP 8.5 · 2031–2060 | 45,7 mm (+23 %) | 39,1 % | 76 / 78 · **68** | 0,37 | 11 · **6** | 1,61 km² | 1,03 km² | 2 619 |
+| CMIP5 RCP 8.5 · 2071–2100 | 63,6 mm (+71 %) | 97,3 % | 203 / 206 · **92** | 0,04 | 15 · **8** | 2,00 km² | 1,45 km² | 3 189 |
+| CMIP6 SSP2-4.5 · 2031–2060 | 41,4 mm (+11 %) | 22,6 % | 63 / 65 · **61** | 0,48 | 9 · **6** | 1,48 km² | 0,84 km² | 2 393 |
+| CMIP6 SSP2-4.5 · 2071–2100 | 50,2 mm (+35 %) | 46,3 % | 77 / 79 · **72** | 0,36 | 11 · **6** | 1,70 km² | 1,14 km² | 2 741 |
+| CMIP6 SSP5-8.5 · 2031–2060 | 41,5 mm (+12 %) | 23,0 % | 63 / 65 · **63** | 0,47 | 9 · **6** | 1,49 km² | 0,87 km² | 2 420 |
+| CMIP6 SSP5-8.5 · 2071–2100 | 50,7 mm (+36 %) | 48,3 % | 78 / 80 · **75** | 0,35 | 11 · **6** | 1,73 km² | 1,18 km² | 2 799 |
 
 En la tabla, «unidades en riesgo alto» incluye las de riesgo alto y muy alto, y los puntos críticos de la simulación son los que tienen al menos 0,20 m a 30 m o menos. Las edificaciones de la simulación son las que tienen más de 30 cm de agua al pie. La tesis cuenta, en cambio, las edificaciones de las unidades en riesgo alto (2 606 en el presente), así que esa columna solo indica el orden de magnitud.
 
@@ -247,51 +276,59 @@ En la tabla, «unidades en riesgo alto» incluye las de riesgo alto y muy alto, 
 
 | Escenarios | Aumento de la lluvia | Área urbana con más de 10 cm | Área con más de 50 cm |
 |---|---|---|---|
-| Presente | — | 1,40 km² | — |
-| RCP 4.5 (ambos periodos) y CMIP6 2031–2060 | +11 % a +14 % | +7 % a +13 % | +19 % a +35 % |
-| CMIP5 RCP 8.5 2031–2060 | +23 % | +17 % | +45 % |
-| CMIP6 de 2071–2100 | +35 % a +36 % | +23 % a +26 % | +60 % a +66 % |
-| CMIP5 RCP 8.5 2071–2100 | +71 % | +45 % | +103 % |
+| Presente | — | 1,37 km² | 0,71 km² |
+| RCP 4.5 (ambos periodos) y CMIP6 2031–2060 | +11 % a +14 % | +8 % a +13 % | +19 % a +36 % |
+| CMIP5 RCP 8.5 2031–2060 | +23 % | +17 % | +46 % |
+| CMIP6 de 2071–2100 | +35 % a +36 % | +24 % a +27 % | +61 % a +66 % |
+| CMIP5 RCP 8.5 2071–2100 | +71 % | +46 % | +105 % |
 
 Más lluvia hace más profundas, sobre todo, las zonas que ya se inundan: el cauce y sus riberas, y las calles bajas.
 
-**2. El número de unidades en riesgo alto coincide con la tesis en 8 de los 9 escenarios.** La diferencia es de 6 unidades o menos:
+**2. El número de unidades en riesgo alto y su aumento coinciden con la tesis en 7 de los 9 escenarios.**
 
-| Escenario | Tesis | Simulación |
-|---|---|---|
-| Presente | 65 | 59 |
-| SSP2-4.5 2031–2060 | 65 | 63 |
-| SSP2-4.5 2071–2100 | 79 | 78 |
-| SSP5-8.5 2071–2100 | 80 | 81 |
-| RCP 8.5 2031–2060 | 78 | 72 |
+| Escenario | Tesis (tabla) | Simulación | Aumento respecto al presente (tesis · simulación) |
+|---|---|---|---|
+| Presente | 63 | 59 | — |
+| CMIP5 RCP 4.5 2031–2060 | 63 | 65 | 0 · +6 |
+| CMIP5 RCP 4.5 2071–2100 | 63 | 68 | 0 · +9 |
+| CMIP5 RCP 8.5 2031–2060 | 76 | 68 | +13 · +9 |
+| CMIP5 RCP 8.5 2071–2100 | 203 | 92 | +140 · +33 |
+| CMIP6 SSP2-4.5 2031–2060 | 63 | 61 | 0 · +2 |
+| CMIP6 SSP2-4.5 2071–2100 | 77 | 72 | +14 · +13 |
+| CMIP6 SSP5-8.5 2031–2060 | 63 | 63 | 0 · +4 |
+| CMIP6 SSP5-8.5 2071–2100 | 78 | 75 | +15 · +16 |
 
-Lo que coincide es el total, no siempre las mismas manzanas: la concordancia por unidad baja de 0,49 en el presente a 0,35–0,48 en los escenarios futuros.
+- **Coincidencia.** En 7 de los 9 escenarios la diferencia con la tabla de la tesis es de 5 unidades o menos. La simulación se calibró solo con el presente, y aun así reproduce el aumento de los dos escenarios CMIP6 de 2071–2100: +13 frente a +14 y +16 frente a +15.
+- **CMIP5 RCP 8.5 2031–2060.** Queda 8 unidades por debajo.
+- **Concordancia por unidad.** Lo que coincide es el total y su aumento, no siempre las mismas manzanas: la concordancia por unidad baja de 0,49 en el presente a 0,35–0,48 en los escenarios futuros.
 
-**3. El salto de CMIP5 RCP 8.5 2071–2100.** La tesis pasa a 97,3 % de la ciudad en peligro alto y a 203 unidades en riesgo alto. Frente al presente, en el mapa C-04 cambian de clase 495 de las 887 unidades, y 141 entran en riesgo alto. En la simulación cambian 75 y entran 35. El patrón de la tesis es el de un factor desencadenante clasificado: la lluvia (D) pesa el 50 % del índice de peligro, y cuando la P24 cruza el límite de una clase sube un nivel en toda la ciudad, sin importar el relieve. La simulación concentra el aumento donde el agua se acumula.
+**3. El salto de CMIP5 RCP 8.5 2071–2100.** La tesis pasa a 97,3 % de la ciudad en peligro alto y a 203 unidades en riesgo alto. Frente al presente, en el mapa C-04 cambian de clase 495 de las 887 unidades, y 141 entran en riesgo alto. En la simulación cambian 70 y entran 33. El patrón de la tesis es el de un factor desencadenante clasificado: la lluvia (D) pesa el 50 % del índice de peligro, y cuando la P24 cruza el límite de una clase sube un nivel en toda la ciudad, sin importar el relieve. La simulación concentra el aumento donde el agua se acumula.
 
 Para el artículo hay dos opciones:
 
 - presentar el escenario extremo con este contraste físico;
 - normalizar D de forma continua en lugar de clasificarlo.
 
-**4. Los escenarios moderados también cambian.** Con +11 % a +14 % de lluvia (RCP 4.5 y los CMIP6 de 2031–2060), los mapas de la tesis casi no cambian: suben de clase entre 0 y 5 unidades. En la simulación suben entre 11 y 28 unidades, y entre 4 y 11 entran en riesgo alto. Es la diferencia entre una respuesta continua y una por clases.
+**4. Los escenarios moderados también cambian.** Con +11 % a +14 % de lluvia (RCP 4.5 y los CMIP6 de 2031–2060), los mapas de la tesis casi no cambian: suben de clase entre 0 y 5 unidades. En la simulación suben entre 8 y 23 unidades, y entre 2 y 9 entran en riesgo alto. Es la diferencia entre una respuesta continua y una por clases.
 
 **5. Puntos críticos:**
 
 - **PC-1, PC-8 y PC-9.** Están en la llanura del río y superan 2 m en todos los escenarios.
-- **PC-10, PC-11, PC-12 y PC-14.** Tienen 0,28–0,32 m en el presente. En RCP 8.5 2071–2100, PC-10, PC-11 y PC-12 llegan a 0,6–0,8 m; PC-14 casi no cambia (0,32 → 0,35 m).
-- **PC-7 y PC-13.** Pasan de 0,20 m en los escenarios de 2071–2100 con más lluvia (SSP2-4.5, SSP5-8.5 y RCP 8.5); PC-13 también en RCP 8.5 2031–2060.
-- **PC-2, PC-3, PC-4, PC-5 y PC-15.** Quedan por debajo de 0,20 m en todos los escenarios.
+- **PC-10, PC-11 y PC-12.** Tienen 0,28–0,29 m en el presente y llegan a 0,62–0,78 m en RCP 8.5 2071–2100.
+- **PC-7 y PC-13.** Solo pasan de 0,20 m en RCP 8.5 2071–2100 (0,26 y 0,24 m).
+- **PC-2, PC-3, PC-4, PC-5, PC-14 y PC-15.** Quedan por debajo de 0,20 m en todos los escenarios.
 - **PC-6.** Queda seco (0,01 m).
 
-En estos seis últimos puntos, la inundación que registra el plan municipal probablemente depende de algo que el modelo no representa: el drenaje colapsado, una alcantarilla o un canal que no está en el plano, o escorrentía muy local. Son los primeros puntos que conviene verificar en campo.
+En estos siete últimos puntos, la inundación que registra el plan municipal probablemente depende de algo que el modelo no representa: el drenaje colapsado, una alcantarilla o un canal que no está en el plano, o escorrentía muy local. Son los primeros puntos que conviene verificar en campo.
+
+Con la corrección de patios, PC-14 y PC-13 perdieron el agua que les llegaba de un patio vecino sin salida: en el presente, PC-14 bajó de 0,32 a 0,05 m.
 
 **6. Dónde está el agua profunda.** En el presente:
 
-- el 79 % del área urbana con más de 1 m de agua está a menos de 150 m del cauce;
-- en las calles a más de 150 m del cauce, el tirante máximo tiene una mediana de 1 cm y un P90 de 20 cm.
+- el 81 % del área urbana con más de 1 m de agua está a menos de 150 m del cauce;
+- en las calles a más de 150 m del cauce, el tirante máximo tiene una mediana de 1 cm y un P90 de 21 cm.
 
-El modelo también deja 47 bolsones pequeños (612 celdas, unas 6 ha) con más de 1 m lejos del río. La mayoría son patios cerrados por las edificaciones elevadas o depresiones del MDE del plano. En la realidad esos patios drenan a través de las viviendas, así que el tirante en ellos está sobreestimado (ver las limitaciones).
+Las 28 zonas con más de 1 m lejos del río son calles inundadas y los lotes conectados a ellas, depresiones del terreno del plano o surcos de escurrimiento en campo abierto. Antes de la corrección de patios había además 149 bolsones aislados con más de 30 cm dentro de las manzanas; ahora quedan 16, con 0,6 ha en total.
 
 ## 8. Uso del visor (`Tarma_ciudad_3D.html`)
 
@@ -338,7 +375,9 @@ Los códigos de escenario son:
 - La sección del cauce se representa con una profundización uniforme de 1,0 m. Para precisar los desbordes del río hacen falta secciones topográficas del cauce.
 - Las curvas del plano están unos 10 m más arriba que el GLO-30. Parece un datum vertical distinto: no afecta a las pendientes ni al tirante, pero conviene confirmarlo con un BM del IGN.
 
-**Edificaciones.** Están representadas como bloques de 10 m. No se modelan muros, puertas ni el ingreso de agua a las viviendas. Los patios cerrados por bloques elevados quedan como bolsones sin salida, con tirantes sobreestimados: hay 47 bolsones con más de 1 m lejos del río, unas 6 ha. Una mejora sencilla es dar a esos patios una salida a la calle, que represente el zaguán de las viviendas.
+**Edificaciones.** Están representadas como bloques de 10 m. No se modelan muros, puertas ni el ingreso de agua a las viviendas. Los patios encerrados por los bloques se rellenan hasta su nivel de rebalse (sección 5), así que el agua que llega a un patio se considera desaguada a la calle. Un patio solo se inunda si se inunda la calle de la que recibe agua.
+
+**Depresiones del terreno.** Los badenes de las calles y las depresiones cerradas del MDE del plano se conservan. Algunas pueden ser artefactos de la interpolación entre curvas, sobre todo en campo abierto en los extremos norte y sur del dominio, donde quedan charcos aislados de 1 a 3 m. Conviene verificarlas con topografía o en campo.
 
 **Lluvia:**
 

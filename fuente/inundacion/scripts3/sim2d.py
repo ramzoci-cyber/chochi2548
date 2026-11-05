@@ -1,6 +1,6 @@
 # Simulación 2D de inundación (lluvia sobre malla + hidrogramas de entrada) con el esquema inercial local
 # (Bates et al., 2010; de Almeida et al., 2012) en la malla de 10 m del modelo de Tarma.
-# Uso: python sim2d.py <escenario> <etiqueta> [dCN] [prof_cauce_m] [n_urb] [h_ini] [h_fin]
+# Uso: python sim2d.py <escenario> <etiqueta> [dCN] [prof_cauce_m] [n_urb] [h_ini] [h_fin] [edificaciones_m] [patios 0/1]
 import json, sys, time, os, numpy as np, numba as nb
 G = 9.81; DX = 10.0
 @nb.njit(parallel=True, fastmath=True, cache=True)
@@ -82,13 +82,35 @@ def continuidad(h, z, qx, qy, dt, fuente, hmax, vmax, tmax, t, n2, sbord):
                 v = (ux * ux + uy * uy) ** 0.5
                 if v > vmax[j, i]: vmax[j, i] = v
     return salida
-def preparar(dcn=0.0, prof=1.5, n_urb=0.20, bloque=0.0):
+def relleno(a):
+    """Nivel de rebalse de cada celda (relleno de depresiones por reconstrucción morfológica, salida por los bordes).
+    Vecindad de 4 celdas, la misma del esquema numérico: una salida solo en diagonal no desagua."""
+    from skimage.morphology import reconstruction
+    sem = a.copy(); sem[1:-1, 1:-1] = a.max()
+    return reconstruction(sem, a, method='erosion', footprint=np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], bool))
+def corregir_patios(z_obs, z_base, libre, iteraciones=4):
+    """Patios y espacios libres encerrados por las edificaciones elevadas: sube cada celda libre lo que las edificaciones
+    profundizaron su depresión respecto al terreno sin edificaciones. El agua de techos y patios rebalsa entonces hacia la
+    calle, como en la realidad por el zaguán o el desagüe de la vivienda. Las depresiones del propio terreno, las calles y el
+    cauce no se tocan."""
+    dep_b = relleno(z_base) - z_base
+    z = z_obs.copy()
+    for _ in range(iteraciones):
+        extra = (relleno(z) - z) - dep_b
+        m = libre & (extra > 0.005)
+        if not m.any(): break
+        z[m] += extra[m]
+    return z
+def preparar(dcn=0.0, prof=1.5, n_urb=0.20, bloque=0.0, patios=False):
     M = np.load('sim/malla.npz')
     z = M['Z'].copy()
     rio = M['rio']
     z[rio] -= prof                                   # cauce excavado (sección no representada en el MDE)
     if bloque > 0:                                   # edificaciones como obstáculos: celdas con más de la mitad construida
-        z[(M['fb'] > 0.5) & ~rio] += bloque
+        ed = (M['fb'] > 0.5) & ~rio
+        zb = z.copy(); z[ed] += bloque
+        if patios:                                   # sin bolsones en patios cerrados (ver corregir_patios)
+            z = corregir_patios(z.astype(np.float64), zb.astype(np.float64), ~rio & ~ed & (M['fp'] <= 0.3)).astype(z.dtype)
     cn = np.clip(M['cn'] + dcn, 30, 99)
     n = M['n'].copy()
     fb = M['fb']
@@ -114,9 +136,9 @@ def hidrogramas(esc, dcn=0.0):
         tt = np.arange(0, 5 * tp + 1e-9, 1 / 6); uh = np.interp(tt / tp, UH_t, UH_q) * 2.08 * en['area_km2'] / tp / 10.0
         ents.append((en, np.convolve(Pe, uh), 0.01 * en['area_km2']))
     return ents
-def correr(esc, etiqueta, dcn=0.0, prof=1.5, n_urb=0.20, h0=6.0, h1=20.0, guardar_cada=900.0, verbose=True, bloque=0.0):
+def correr(esc, etiqueta, dcn=0.0, prof=1.5, n_urb=0.20, h0=6.0, h1=20.0, guardar_cada=900.0, verbose=True, bloque=0.0, patios=False):
     E = json.load(open('sim/entradas.json'))
-    z, cn, n, rio = preparar(dcn, prof, n_urb, bloque)
+    z, cn, n, rio = preparar(dcn, prof, n_urb, bloque, patios)
     H, W = z.shape
     n2 = (n * n).astype(np.float64)
     h = np.zeros((H, W)); qx = np.zeros((H, W)); qy = np.zeros((H, W)); fac = np.ones((H, W))
@@ -155,9 +177,10 @@ def correr(esc, etiqueta, dcn=0.0, prof=1.5, n_urb=0.20, h0=6.0, h1=20.0, guarda
             if verbose: print('t = %5.2f h | dt %.2f s | h máx %.2f m | celdas > 10 cm: %d | %.0f s' % (t / 3600, dt, hm, (h > 0.1).sum(), time.time() - t0), flush=True)
     np.savez_compressed(f'sim/res_{esc}_{etiqueta}.npz', hmax=hmax.astype(np.float32), vmax=vmax.astype(np.float32), tmax=tmax.astype(np.float32),
                         snaps=np.array(snaps), t_snap=np.arange(len(snaps)) * guardar_cada + h0 * 3600, z=z.astype(np.float32),
-                        params=np.array([dcn, prof, n_urb, h0, h1, bloque]))
+                        params=np.array([dcn, prof, n_urb, h0, h1, bloque, float(patios)]))
     return hmax, vmax
 if __name__ == '__main__':
     a = sys.argv
     correr(a[1], a[2], float(a[3]) if len(a) > 3 else 0.0, float(a[4]) if len(a) > 4 else 1.5, float(a[5]) if len(a) > 5 else 0.20,
-           float(a[6]) if len(a) > 6 else 6.0, float(a[7]) if len(a) > 7 else 20.0, bloque=float(a[8]) if len(a) > 8 else 0.0)
+           float(a[6]) if len(a) > 6 else 6.0, float(a[7]) if len(a) > 7 else 20.0, bloque=float(a[8]) if len(a) > 8 else 0.0,
+           patios=bool(int(a[9])) if len(a) > 9 else False)
